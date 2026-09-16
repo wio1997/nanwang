@@ -1,0 +1,17 @@
+FROM swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:8.5.1-910b-ubuntu22.04-py3.11
+
+ARG PYTORCH_VERSION=2.9.0
+ARG TORCH_NPU_VERSION=2.9.0
+ARG PYG_VERSION=2.6.1
+
+RUN python3 -m pip install --no-cache-dir \
+      --index-url https://mirrors.aliyun.com/pypi/simple/ \
+      --trusted-host mirrors.aliyun.com \
+      "torch==${PYTORCH_VERSION}" \
+      "torch-npu==${TORCH_NPU_VERSION}" \
+      "torch-geometric==${PYG_VERSION}" \
+      psutil pyyaml packaging
+
+RUN python3 -c "from importlib.metadata import version; print(version('torch'), version('torch-npu'), version('torch-geometric'))"
+
+CMD ["tail", "-f", "/dev/null"]

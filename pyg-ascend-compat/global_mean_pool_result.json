@@ -1,0 +1,254 @@
+{
+  "api": "global_mean_pool",
+  "timestamp": "2026-09-16T10:16:30+0000",
+  "environment": {
+    "platform": "Linux-5.15.0-25-generic-aarch64-with-glibc2.35",
+    "python": "3.11.14",
+    "torch": "2.9.0+cpu",
+    "torch_npu": "2.9.0",
+    "torch_geometric": "2.6.1",
+    "device": "npu:1",
+    "ascend_home_path": "/usr/local/Ascend/cann-8.5.1"
+  },
+  "cases": [
+    {
+      "dtype": "fp32",
+      "mode": "eager_forward_backward",
+      "input_shape": [
+        9,
+        8
+      ],
+      "output_shape": [
+        2,
+        8
+      ],
+      "output_device": "npu:1",
+      "manual_reference": {
+        "shape_equal": true,
+        "max_abs": 5.960464477539063e-08,
+        "max_rel": 1.1175870184843006e-07,
+        "nan_equal": true,
+        "inf_equal": true
+      },
+      "output_accuracy": {
+        "shape_equal": true,
+        "max_abs": 0.0,
+        "max_rel": 0.0,
+        "nan_equal": true,
+        "inf_equal": true,
+        "allclose": true,
+        "rtol": 0.0001,
+        "atol": 1e-05
+      },
+      "gradient_accuracy": {
+        "shape_equal": true,
+        "max_abs": 0.0,
+        "max_rel": 0.0,
+        "nan_equal": true,
+        "inf_equal": true,
+        "allclose": true
+      },
+      "success": true
+    },
+    {
+      "dtype": "fp16",
+      "mode": "eager_forward_backward",
+      "input_shape": [
+        9,
+        8
+      ],
+      "output_shape": [
+        2,
+        8
+      ],
+      "output_device": "npu:1",
+      "manual_reference": {
+        "shape_equal": true,
+        "max_abs": 5.960464477539063e-08,
+        "max_rel": 1.1175870184843006e-07,
+        "nan_equal": true,
+        "inf_equal": true
+      },
+      "output_accuracy": {
+        "shape_equal": true,
+        "max_abs": 0.0005859136581420898,
+        "max_rel": 0.0029906632844358683,
+        "nan_equal": true,
+        "inf_equal": true,
+        "allclose": true,
+        "rtol": 0.02,
+        "atol": 0.02
+      },
+      "gradient_accuracy": {
+        "shape_equal": true,
+        "max_abs": 7.59512186050415e-05,
+        "max_rel": 0.00040209467988461256,
+        "nan_equal": true,
+        "inf_equal": true,
+        "allclose": true
+      },
+      "success": true
+    },
+    {
+      "dtype": "bf16",
+      "mode": "eager_forward_backward",
+      "input_shape": [
+        9,
+        8
+      ],
+      "output_shape": [
+        2,
+        8
+      ],
+      "output_device": "npu:1",
+      "manual_reference": {
+        "shape_equal": true,
+        "max_abs": 5.960464477539063e-08,
+        "max_rel": 1.1175870184843006e-07,
+        "nan_equal": true,
+        "inf_equal": true
+      },
+      "output_accuracy": {
+        "shape_equal": true,
+        "max_abs": 0.0018229484558105469,
+        "max_rel": 0.003906264901161194,
+        "nan_equal": true,
+        "inf_equal": true,
+        "allclose": true,
+        "rtol": 0.02,
+        "atol": 0.02
+      },
+      "gradient_accuracy": {
+        "shape_equal": true,
+        "max_abs": 0.0008463412523269653,
+        "max_rel": 0.005250431597232819,
+        "nan_equal": true,
+        "inf_equal": true,
+        "allclose": true
+      },
+      "success": true
+    }
+  ],
+  "performance": {
+    "cpu": {
+      "shape": [
+        4096,
+        64
+      ],
+      "warmup": 10,
+      "iterations": 50,
+      "median_ms": 12.344861,
+      "p90_ms": 12.885162,
+      "min_ms": 6.73204,
+      "max_ms": 14.047846
+    },
+    "npu_wall": {
+      "shape": [
+        4096,
+        64
+      ],
+      "warmup": 10,
+      "iterations": 50,
+      "median_ms": 0.5932869999999999,
+      "p90_ms": 0.707436,
+      "min_ms": 0.569877,
+      "max_ms": 0.759025
+    },
+    "speedup_cpu_over_npu": 20.80757036644997
+  },
+  "profile": {
+    "success": true,
+    "path": "/root/pyg_validation/global_mean_pool_rerun/profile_complete",
+    "files": [
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/profiler_metadata.json",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/profiler_info.json",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/host/start_info",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/host/host_start.log.done",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/host/start_info.done",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/host/incompatible_features.json",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/host/end_info",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/host/info.json",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/host/sample.json.done",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/host/incompatible_features.json.done",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/host/sample.json",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/host/end_info.done",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/host/info.json.done",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/host/host_start.log",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/host/data/aging.api_event.data.slice_0.done",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/host/data/aging.compact.task_track.slice_0.done",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/host/data/unaging.additional.hash_dic.slice_0",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/host/data/aging.api_event.data.slice_0",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/host/data/unaging.additional.hash_dic.slice_0.done",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/host/data/aging.compact.node_basic_info.slice_0",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/host/data/aging.additional.context_id_info.slice_0.done",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/host/data/unaging.compact.expand_stream_spec.slice_0.complete",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/host/data/aging.compact.node_basic_info.slice_0.done",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/host/data/unaging.additional.type_info_dic.slice_0.done",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/host/data/all_file.complete",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/host/data/unaging.compact.expand_stream_spec.slice_0",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/host/data/aging.compact.task_track.slice_0",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/host/data/aging.additional.context_id_info.slice_0",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/host/data/unaging.additional.type_info_dic.slice_0",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/host/data/aging.additional.tensor_info.slice_0",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/host/data/unaging.compact.expand_stream_spec.slice_0.done",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/host/data/aging.additional.tensor_info.slice_0.done",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/mindstudio_profiler_log/msprof_analysis_6472.log",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/mindstudio_profiler_log/msprof_analysis_6560.log",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/mindstudio_profiler_log/collection_device_1.log",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/mindstudio_profiler_log/msprof_analysis_6591.log",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/mindstudio_profiler_log/collection_analyze.log",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/mindstudio_profiler_log/collection_host.log",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/mindstudio_profiler_log/msprof_analysis_6640.log",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/device_1/end_info.1",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/device_1/dev_start.log.1.done",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/device_1/host_start.log.1",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/device_1/start_info.1.done",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/device_1/dev_start.log.1",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/device_1/info.json.1",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/device_1/incompatible_features.json",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/device_1/start_info.1",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/device_1/host_start.log.1.done",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/device_1/end_info.1.done",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/device_1/sample.json.done",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/device_1/incompatible_features.json.done",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/device_1/info.json.1.done",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/device_1/sample.json",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/device_1/data/lpmFreqConv.data.1.slice_0",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/device_1/data/ffts_profile.data.1.slice_0.done",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/device_1/data/all_file.complete",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/device_1/data/stars_soc.data.1.slice_0.done",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/device_1/data/stars_soc.data.1.slice_0",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/device_1/data/ffts_profile.data.1.slice_0",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/device_1/data/lpmFreqConv.data.1.slice_0.done",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/mindstudio_profiler_output/api_statistic_20260916101634.csv",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/mindstudio_profiler_output/op_statistic_20260916101634.csv",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/mindstudio_profiler_output/op_summary_20260916101634.csv",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/mindstudio_profiler_output/task_time_20260916101634.csv",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/mindstudio_profiler_output/msprof_20260916101633.json",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/PROF_000001_20260916101631737_QDLFHABIJOOFDANB/mindstudio_profiler_output/README.txt",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/logs/profiler_20260916101632_6434_ProfilingParser.log",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/logs/profiler_20260916101632_6443_CANNExportParser.log",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/logs/profiler_20260916101635_6681_MemoryViewParser.log",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/logs/profiler_20260916101635_6679_KernelViewParser.log",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/logs/profiler_20260916101635_6674_TraceViewParser.log",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/logs/profiler_20260916101635_6676_OperatorViewParser.log",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/logs/profiler_20260916101635_6683_IntegrateParser.log",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/logs/profiler_20260916101636_6686_CommunicationParser.log",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/logs/profiler_20260916101634_6667_CANNAnalyzeParser.log",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/logs/profiler_20260916101635_6672_TraceStepTimeParser.log",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/logs/profiler_20260916101632_6450_TracePreParser.log",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/FRAMEWORK/torch.op_mark",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/FRAMEWORK/torch.op_range",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/ASCEND_PROFILER_OUTPUT/op_statistic.csv",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/ASCEND_PROFILER_OUTPUT/analysis.db",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/ASCEND_PROFILER_OUTPUT/ascend_pytorch_profiler.db",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/ASCEND_PROFILER_OUTPUT/trace_view.json",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/ASCEND_PROFILER_OUTPUT/kernel_details.csv",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/ASCEND_PROFILER_OUTPUT/operator_details.csv",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/ASCEND_PROFILER_OUTPUT/api_statistic.csv",
+      "profile_complete/5b871d7a017d_5910_20260916101631735_ascend_pt/ASCEND_PROFILER_OUTPUT/step_trace_time.csv"
+    ]
+  },
+  "errors": [],
+  "functional_success": true
+}

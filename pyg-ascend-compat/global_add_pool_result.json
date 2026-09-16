@@ -1,0 +1,254 @@
+{
+  "api": "global_add_pool",
+  "timestamp": "2026-09-16T10:18:28+0000",
+  "environment": {
+    "platform": "Linux-5.15.0-25-generic-aarch64-with-glibc2.35",
+    "python": "3.11.14",
+    "torch": "2.9.0+cpu",
+    "torch_npu": "2.9.0",
+    "torch_geometric": "2.6.1",
+    "device": "npu:1",
+    "ascend_home_path": "/usr/local/Ascend/cann-8.5.1"
+  },
+  "cases": [
+    {
+      "dtype": "fp32",
+      "mode": "eager_forward_backward",
+      "input_shape": [
+        9,
+        8
+      ],
+      "output_shape": [
+        2,
+        8
+      ],
+      "output_device": "npu:1",
+      "manual_reference": {
+        "shape_equal": true,
+        "max_abs": 2.384185791015625e-07,
+        "max_rel": 7.450580596923828e-08,
+        "nan_equal": true,
+        "inf_equal": true
+      },
+      "output_accuracy": {
+        "shape_equal": true,
+        "max_abs": 0.0,
+        "max_rel": 0.0,
+        "nan_equal": true,
+        "inf_equal": true,
+        "allclose": true,
+        "rtol": 0.0001,
+        "atol": 1e-05
+      },
+      "gradient_accuracy": {
+        "shape_equal": true,
+        "max_abs": 0.0,
+        "max_rel": 0.0,
+        "nan_equal": true,
+        "inf_equal": true,
+        "allclose": true
+      },
+      "success": true
+    },
+    {
+      "dtype": "fp16",
+      "mode": "eager_forward_backward",
+      "input_shape": [
+        9,
+        8
+      ],
+      "output_shape": [
+        2,
+        8
+      ],
+      "output_device": "npu:1",
+      "manual_reference": {
+        "shape_equal": true,
+        "max_abs": 2.384185791015625e-07,
+        "max_rel": 7.450580596923828e-08,
+        "nan_equal": true,
+        "inf_equal": true
+      },
+      "output_accuracy": {
+        "shape_equal": true,
+        "max_abs": 0.0011718273162841797,
+        "max_rel": 0.0026854875031858683,
+        "nan_equal": true,
+        "inf_equal": true,
+        "allclose": true,
+        "rtol": 0.02,
+        "atol": 0.02
+      },
+      "gradient_accuracy": {
+        "shape_equal": true,
+        "max_abs": 0.0003255605697631836,
+        "max_rel": 0.00040212098974734545,
+        "nan_equal": true,
+        "inf_equal": true,
+        "allclose": true
+      },
+      "success": true
+    },
+    {
+      "dtype": "bf16",
+      "mode": "eager_forward_backward",
+      "input_shape": [
+        9,
+        8
+      ],
+      "output_shape": [
+        2,
+        8
+      ],
+      "output_device": "npu:1",
+      "manual_reference": {
+        "shape_equal": true,
+        "max_abs": 2.384185791015625e-07,
+        "max_rel": 7.450580596923828e-08,
+        "nan_equal": true,
+        "inf_equal": true
+      },
+      "output_accuracy": {
+        "shape_equal": true,
+        "max_abs": 0.012499809265136719,
+        "max_rel": 0.003906289581209421,
+        "nan_equal": true,
+        "inf_equal": true,
+        "allclose": true,
+        "rtol": 0.02,
+        "atol": 0.02
+      },
+      "gradient_accuracy": {
+        "shape_equal": true,
+        "max_abs": 0.0031249523162841797,
+        "max_rel": 0.0034193743485957384,
+        "nan_equal": true,
+        "inf_equal": true,
+        "allclose": true
+      },
+      "success": true
+    }
+  ],
+  "performance": {
+    "cpu": {
+      "shape": [
+        4096,
+        64
+      ],
+      "warmup": 10,
+      "iterations": 50,
+      "median_ms": 1.523001,
+      "p90_ms": 2.410453,
+      "min_ms": 0.732008,
+      "max_ms": 3.219091
+    },
+    "npu_wall": {
+      "shape": [
+        4096,
+        64
+      ],
+      "warmup": 10,
+      "iterations": 50,
+      "median_ms": 0.290899,
+      "p90_ms": 0.300389,
+      "min_ms": 0.26822,
+      "max_ms": 0.338169
+    },
+    "speedup_cpu_over_npu": 5.235497543821051
+  },
+  "profile": {
+    "success": true,
+    "path": "/root/pyg_validation/global_add_pool/profile_complete",
+    "files": [
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/profiler_metadata.json",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/profiler_info.json",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/host/start_info",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/host/host_start.log.done",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/host/start_info.done",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/host/incompatible_features.json",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/host/end_info",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/host/info.json",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/host/sample.json.done",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/host/incompatible_features.json.done",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/host/sample.json",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/host/end_info.done",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/host/info.json.done",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/host/host_start.log",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/host/data/aging.api_event.data.slice_0.done",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/host/data/aging.compact.task_track.slice_0.done",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/host/data/unaging.additional.hash_dic.slice_0",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/host/data/aging.api_event.data.slice_0",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/host/data/unaging.additional.hash_dic.slice_0.done",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/host/data/aging.compact.node_basic_info.slice_0",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/host/data/aging.additional.context_id_info.slice_0.done",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/host/data/unaging.compact.expand_stream_spec.slice_0.complete",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/host/data/aging.compact.node_basic_info.slice_0.done",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/host/data/unaging.additional.type_info_dic.slice_0.done",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/host/data/all_file.complete",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/host/data/unaging.compact.expand_stream_spec.slice_0",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/host/data/aging.compact.task_track.slice_0",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/host/data/aging.additional.context_id_info.slice_0",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/host/data/unaging.additional.type_info_dic.slice_0",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/host/data/aging.additional.tensor_info.slice_0",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/host/data/unaging.compact.expand_stream_spec.slice_0.done",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/host/data/aging.additional.tensor_info.slice_0.done",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/mindstudio_profiler_log/msprof_analysis_7778.log",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/mindstudio_profiler_log/collection_device_1.log",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/mindstudio_profiler_log/msprof_analysis_7809.log",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/mindstudio_profiler_log/collection_analyze.log",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/mindstudio_profiler_log/collection_host.log",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/mindstudio_profiler_log/msprof_analysis_7858.log",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/mindstudio_profiler_log/msprof_analysis_7690.log",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/device_1/end_info.1",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/device_1/dev_start.log.1.done",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/device_1/host_start.log.1",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/device_1/start_info.1.done",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/device_1/dev_start.log.1",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/device_1/info.json.1",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/device_1/incompatible_features.json",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/device_1/start_info.1",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/device_1/host_start.log.1.done",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/device_1/end_info.1.done",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/device_1/sample.json.done",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/device_1/incompatible_features.json.done",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/device_1/info.json.1.done",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/device_1/sample.json",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/device_1/data/lpmFreqConv.data.1.slice_0",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/device_1/data/ffts_profile.data.1.slice_0.done",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/device_1/data/all_file.complete",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/device_1/data/stars_soc.data.1.slice_0.done",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/device_1/data/stars_soc.data.1.slice_0",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/device_1/data/ffts_profile.data.1.slice_0",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/device_1/data/lpmFreqConv.data.1.slice_0.done",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/mindstudio_profiler_output/api_statistic_20260916101831.csv",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/mindstudio_profiler_output/op_summary_20260916101831.csv",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/mindstudio_profiler_output/README.txt",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/mindstudio_profiler_output/msprof_20260916101830.json",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/mindstudio_profiler_output/task_time_20260916101831.csv",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/PROF_000001_20260916101828932_NEKKHCFLPENOKDLC/mindstudio_profiler_output/op_statistic_20260916101831.csv",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/logs/profiler_20260916101829_7667_TracePreParser.log",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/logs/profiler_20260916101831_7885_CANNAnalyzeParser.log",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/logs/profiler_20260916101832_7904_CommunicationParser.log",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/logs/profiler_20260916101831_7901_MemoryViewParser.log",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/logs/profiler_20260916101831_7892_TraceStepTimeParser.log",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/logs/profiler_20260916101829_7661_CANNExportParser.log",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/logs/profiler_20260916101831_7894_OperatorViewParser.log",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/logs/profiler_20260916101831_7897_KernelViewParser.log",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/logs/profiler_20260916101831_7889_TraceViewParser.log",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/logs/profiler_20260916101831_7899_IntegrateParser.log",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/logs/profiler_20260916101829_7652_ProfilingParser.log",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/FRAMEWORK/torch.op_mark",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/FRAMEWORK/torch.op_range",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/ASCEND_PROFILER_OUTPUT/op_statistic.csv",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/ASCEND_PROFILER_OUTPUT/analysis.db",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/ASCEND_PROFILER_OUTPUT/ascend_pytorch_profiler.db",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/ASCEND_PROFILER_OUTPUT/trace_view.json",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/ASCEND_PROFILER_OUTPUT/kernel_details.csv",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/ASCEND_PROFILER_OUTPUT/operator_details.csv",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/ASCEND_PROFILER_OUTPUT/api_statistic.csv",
+      "profile_complete/5b871d7a017d_7128_20260916101828931_ascend_pt/ASCEND_PROFILER_OUTPUT/step_trace_time.csv"
+    ]
+  },
+  "errors": [],
+  "functional_success": true
+}
