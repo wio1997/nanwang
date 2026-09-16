@@ -2,7 +2,7 @@ FROM swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:8.5.1-910b-ubuntu22.04-py3.
 
 ARG PYTORCH_VERSION=2.9.0
 ARG TORCH_NPU_VERSION=2.9.0
-ARG PYG_VERSION=2.6.1
+ARG PYG_VERSION=2.8.0.post1
 
 RUN python3 -m pip install --no-cache-dir \
       --index-url https://mirrors.aliyun.com/pypi/simple/ \

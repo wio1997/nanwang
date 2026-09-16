@@ -9,6 +9,5 @@ Input Data Types: INT64;INT64, Output Data Types: INT64
 ```
 
 All other observed core types were `AI_VECTOR_CORE` or `MIX_AIV`. This is a
-confirmed AICPU component, not a Host Tensor fallback. PyG 2.6.1 also emits a
+confirmed AICPU component, not a Host Tensor fallback. PyG 2.8.0.post1 also emits a
 deprecation warning for `global_sort_pool`, recommending `SortAggregation`.
-

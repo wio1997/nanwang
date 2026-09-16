@@ -6,5 +6,4 @@
   - `aclnnSort_SortAiCpu_Sort`, input `INT64[1024]`.
   - `aclnnCumsum_CumsumAiCpu_Cumsum`, input `INT64[16]` (plus scalar axis).
 - No runtime `npu_cpu_fallback` warning was observed; this establishes device-side AICPU, not Host CPU tensor fallback.
-- Raw profiler remains in container `wio-pyg-cann851-torch290:/root/pyg_validation/SAGPooling/profile_complete`.
-
+- Raw profiler remains in container `wio-pyg-cann851-pyg280:/root/pyg_validation/SAGPooling/profile_complete`.

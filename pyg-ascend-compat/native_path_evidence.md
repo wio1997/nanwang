@@ -1,12 +1,16 @@
-# Representative native-path evidence
+# PyG 2.8.0.post1 representative execution-path evidence
 
-Scope: the profiler capture for each API is a representative **fp32, no-grad/eval forward** at the performance shape. Functional/precision cases separately cover fp32/fp16/bf16 and backward where reported. Absence of fallback in this capture is not extrapolated to every dtype, backward, shape, or compile mode.
+All profiler captures are representative fp32, no-grad forward paths. Correctness cases cover the additional dtypes and backward modes stated in the result JSON, but those modes were not separately profiled.
 
-| API | Profile location in container | Core types in `op_statistic.csv` | `AICPU` row in `kernel_details.csv` | Fallback marker search in profile tree | Runtime warning during capture |
-|---|---|---|---|---|---|
-| GraphNorm | `/root/pyg_validation/graphnorm/profile_complete` | `AI_VECTOR_CORE`, `MIX_AIV` | none | none | none observed |
-| global_mean_pool | `/root/pyg_validation/global_mean_pool_rerun/profile_complete` | `AI_VECTOR_CORE`, `MIX_AIV` | none | none | none observed |
-| global_add_pool | `/root/pyg_validation/global_add_pool/profile_complete` | `AI_VECTOR_CORE`, `MIX_AIV` | none | none | none observed |
+| API | Observed device core types | AICPU evidence | Host tensor fallback evidence | Suggested status |
+|---|---|---|---|---|
+| GraphNorm | AI_VECTOR_CORE, MIX_AIV | none | none observed | A |
+| global_mean_pool | AI_VECTOR_CORE, MIX_AIV | none | none observed | A |
+| global_add_pool | AI_VECTOR_CORE, MIX_AIV | none | none observed | A |
+| global_max_pool | AI_VECTOR_CORE | none | explicit runtime `npu_cpu_fallback` for `aten::scatter_reduce.two_out` | C2 |
+| global_sort_pool | AI_VECTOR_CORE, MIX_AIV, AI_CPU | `Cumsum`, INT64[32] | not confirmed | C1 |
+| TopKPooling | AI_VECTOR_CORE, MIX_AIV, AI_CPU | `Sort` INT64[1024], `Cumsum` INT64[16] | not confirmed | C1 |
+| SAGPooling | AI_CORE, AI_VECTOR_CORE, MIX_AIV, AI_CPU | `Sort` INT64[1024], `Cumsum` INT64[16] | not confirmed | C1 |
 
-This evidence supports status A for the bounded representative path under the frozen rubric. It does not prove universal native execution.
+Raw profiler trees remain inside `wio-pyg-cann851-pyg280:/root/pyg_validation/<API>/profile_complete`.
 
