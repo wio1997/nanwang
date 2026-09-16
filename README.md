@@ -11,4 +11,6 @@ The [`pyg-ascend-compat`](./pyg-ascend-compat/) directory contains the first-rou
 - PyTorch/torch_npu 2.9.0
 - PyTorch Geometric 2.8.0.post1
 
-Start with [`pyg-ascend-compat/final_report.md`](./pyg-ascend-compat/final_report.md). The directory also includes the container recipe, test harnesses, machine-readable results, profiler summaries, and bounded root-cause notes. PyG 2.8.0.post1 retains the deprecated `global_sort_pool` wrapper, so all seven requested APIs are covered. Raw profiler databases are intentionally excluded because of their size and environment-specific metadata.
+Start with [`pyg-ascend-compat/final_report.md`](./pyg-ascend-compat/final_report.md). For the follow-up Sort/Cumsum/scatter-max feasibility attribution, see [`pyg-ascend-compat/feasibility_attribution.md`](./pyg-ascend-compat/feasibility_attribution.md).
+
+The directory also includes the container recipe, test harnesses, machine-readable results, profiler summaries, and bounded root-cause notes. PyG 2.8.0.post1 retains the deprecated `global_sort_pool` wrapper, so all seven requested APIs are covered. Raw profiler databases are intentionally excluded because of their size and environment-specific metadata.

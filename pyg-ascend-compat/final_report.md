@@ -44,10 +44,21 @@ Eight NPUs were visible, a synchronized fp32 matmul on `npu:1` passed, and all s
 
 Timing covers synchronized fp32 forward calls with inputs already resident on the target device, 10 warmups and 50 measured iterations. It excludes input transfer and CPU-reference comparison.
 
+## Follow-up feasibility attribution
+
+The A/C1/C2 values above are compatibility-screening statuses, not root-cause categories. Controlled follow-up experiments produced these bounded conclusions:
+
+- Cumsum is `TYPE_LIMITATION`: identical legal INT32 and INT64 calls select AI Core and AICPU respectively. The INT32 path is reusable only when the complete prefix-sum range fits INT32 and downstream dtype semantics are preserved.
+- Stable Sort for the tested integer family is `TYPE_LIMITATION`: INT32 and INT64 both select AICPU, while an otherwise identical FP32 stable Sort selects AI Core. For non-negative graph IDs no greater than `2^24`, sorting FP32 keys and applying the returned permutation to the original INT64 batch is mathematically equivalent under the documented contract. This was not integrated into PyG.
+- The batched max path remains an unresolved attribution with an `ADAPTER_GAP` hypothesis. Both `include_self` values and both PyTorch call forms use the same Host CPU fallback. CANN contains an Ascend 910B AI Core `ScatterMax` candidate for float32 data with INT32/INT64 indices, while the relevant torch_npu/TorchAir ATen converters are unimplemented. Direct raw-op probes reached `ScatterMax` device execution but failed with an MTE address error for both index dtypes; an alias-aware test was rejected by frontend functionalization before device execution. These probes do not justify either a final adapter-gap claim or a compute-capability-gap claim.
+
+See `feasibility_attribution.md` for the experiment matrix, reuse constraints and stopping conditions. No custom operator or production adapter was implemented.
+
 ## Evidence
 
 - `environment_gate.md`
 - `native_path_evidence.md`
+- `feasibility_attribution.md`
 - `graphnorm_result.json`
 - `global_mean_pool_result.json`
 - `global_add_pool_result.json`
