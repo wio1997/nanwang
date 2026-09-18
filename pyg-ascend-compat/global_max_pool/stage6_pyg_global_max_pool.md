@@ -183,7 +183,9 @@ untouched (custom OPP stays in `/root/zyg/build/scattermax_runtime_opp`).
   Stage 4 autograd path — see `stage4_fp32_backward.md`); second-order autograd is out of scope.
   The Stage 2/3A adapter itself remains forward-only (it still rejects `requires_grad=True`); the
   differentiable entry is `global_max_pool/stage4/python/global_max_pool_ascend_autograd.py`.
-* FP32 only; fp16/bf16 pass through to the original PyG path (no claim of support)
+* FP32, **FP16 and BF16** are supported now (Stage 5): fp16/bf16 run as a device cast chain around
+  the fp32-only custom op and are bit-exact against the same-dtype CPU oracle —
+  see `stage5_fp16_bf16.md`. (This paragraph describes the Stage 6 scope as it was then.)
 * only `global_max_pool` is routed; `aten::scatter_reduce` and other PyG scatter reductions are
   intentionally untouched
 * documented index/shape limits of the custom op are enforced by the adapter:

@@ -42,11 +42,14 @@ torch_geometric.nn.global_max_pool
   (equal split per `(group, feature)`, the `include_self=False` zero-max denominator quirk, empty
   groups, `-inf`, NaN contagion) — Stage 4; see
   `global_max_pool/stage4_fp32_backward.md`
+* **FP16 and BF16 forward + first-order backward** (`requires_grad` either way) — Stage 5; the
+  delivered `ScatterMaxV1` is fp32-only (measured `aclnn` status 161002 for fp16/bf16), so the path
+  is an audited device cast chain (`dtype → fp32 → ScatterMaxV1 → dtype`) with a dtype-exact
+  tie-gradient backward; see `global_max_pool/stage5_fp16_bf16.md`
 
 ## Not yet supported
 
 * second-order autograd / `create_graph=True` (gradgrad) — Stage 4 is first-order only
-* FP16 / BF16 (falls through to the original PyG path — Stage 5)
 * the **extreme combined case** `N ≥ 163800` **and** large-tail `F`: shape-only tiling evidence
   exists (`F = 44736` → SMALL_TAIL, `F = 44737` → LARGE_TAIL at `N = 163800`), but the runtime is
   not exercised — the input alone would need ≈29 GB of HBM
@@ -114,6 +117,18 @@ call it as `torch_geometric.nn.global_max_pool(...)`), and re-import if you enab
 Known numerical note: the Ascend vector unit has no correctly-rounded fp32 divide (and no fp64), so
 tie-split cells can differ from the IEEE-rounded CPU result by **≤1 ULP**; winner masks, counts,
 zeros and NaN structure are exact.
+
+### Stage 5 — FP16 / BF16 (2026-09-18)
+
+| item | fp16 | bf16 |
+|---|---|---|
+| capability | supported (device cast chain) | supported |
+| CPU oracle | 26/26 cases, out/grad dtype = input dtype | same |
+| count arithmetic (measured) | exact integer rounded to dtype (21/21) | (22/22) |
+| semantics matrix (31 cases each) | **31/31 PASS, bit-exact (max ULP 0)** | **31/31 PASS, bit-exact** |
+| real PyG API E2E | PASS (`ascend_calls=24 original_calls=0`, dtype16_autograd 22 / forward 2) | PASS |
+| profiler (4 cases each, forward+loss+backward) | ScatterMaxV1 AI_VECTOR_CORE, AI_CPU 0, `scatter_reduce` NOT CALLED, fallback NONE | same |
+| FP32 regression | 3A 34/34 · 3B 45/45 · 3D 9/9 · 3E 13/13 · Stage 6 20/20 · Stage 2 16/16 · Stage 4 35/35+11/11 (ULP unchanged) | unchanged |
 
 ### Stage 3E — large-tail promotion (2026-09-18)
 
