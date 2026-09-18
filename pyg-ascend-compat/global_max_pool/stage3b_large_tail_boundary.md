@@ -273,3 +273,23 @@ bash    /root/zyg/global_max_pool/stage3b/tools/run_largetail_threshold.sh  # ti
 python3 /root/zyg/global_max_pool/stage3b/tests/run_stage3b_boundary_tests.py
 python3 /root/zyg/global_max_pool/stage3b/tests/run_stage3b_pyg_e2e.py
 ```
+
+## 15. Status update — Stage 3C/3D repair + Stage 3E promotion (2026-09-18)
+
+The single blocker recorded in this report (large-tail `F` shapes: no kernel entry `_1`, then a
+wild index-driven GM write) is closed:
+
+* **Stage 3C** added the explicit `TILING_KEY_IS(1)` kernel branch plus
+  `--tiling_key=0,1`, so the package now registers `..._0` **and** `..._1`.
+* **Stage 3D** root-caused and fixed the two kernel defects
+  (`_idxLocal.GetValue(idxOffset + k)` → `GetValue(k)`, and the missing `+ n*_srcBatchNum`
+  chunk offset on the result write).
+* **Stage 3E** promoted both repairs into the **formal delivery OPP**
+  (`/root/zyg/build/scattermax_runtime_opp/vendors/customize`, rebuilt from
+  `/root/zyg/build/scattermax_probe`), proved by an `LD_PRELOAD` open() trace that the runtime loads
+  that package's kernel binary, and re-ran everything on it: LT0–LT6 + LTA1/LTA2 **9/9 PASS**,
+  tail-attack + PyG E2E **13/13 PASS**, this report's matrix **45/45 PASS**, Stage 3A 34/34,
+  Stage 3D 9/9, Stage 6 demo PASS and 20/20.
+
+The envelope numbers in §13 above remain the tiling *thresholds*; shapes above them now run
+correctly instead of failing. Evidence: `stage3e_large_tail_delivery_promotion.md`.

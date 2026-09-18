@@ -218,3 +218,23 @@ PyG E2E no fallback · Stage 3B 45/45 · Stage 6 20/20.
 STAGE 3B LARGE-TAIL / BOUNDARY VALIDATION IS NOW CLOSED.
 READY FOR HUMAN REVIEW BEFORE STAGE 4.
 ```
+
+---
+
+## 20. Status update — Stage 3E promotion (2026-09-18)
+
+Risk #1 of §18 ("the fix lives in a probe copy") is closed. Both one-line kernel repairs — plus the
+Stage 3C entry repair and a byte-exact index load (Stage 3E Task E, see below) — are now in the
+**formal delivery source** `/root/zyg/build/scattermax_probe`, were clean-rebuilt into the formal
+delivery OPP, and the whole Stage 3D evidence set was re-produced on that package:
+
+* LT0–LT6 + LTA1/LTA2 = **9/9 PASS**, `max_abs_diff = 0`
+* tail-attack suite + PyG E2E (`E2E_LT1/2/3`) = **13/13 PASS**, `ascend_calls=3 original_calls=0`
+* profiler: `ScatterMaxV1` = **AI_VECTOR_CORE** (entry `_1`), `AI_CPU = 0`, `aten::scatter_reduce`
+  not called, no `507035` / `507011` / MTE OOB / AIV exception / host fallback
+* Stage 3A 34/34 · Stage 3B 45/45 · Stage 3D 9/9 · Stage 6 demo PASS · Stage 6 20/20
+
+Additional repair promoted in Stage 3E (Task E): the index GM loads used the 32 B-block
+`DataCopy(..., AlignUp(idxLoadNum, 8))` form, so the last core could read up to 28 B past the
+logical index tensor. They are now byte-exact `DataCopyPad` loads; index values/semantics are
+unchanged. Full evidence: `stage3e_large_tail_delivery_promotion.md`.

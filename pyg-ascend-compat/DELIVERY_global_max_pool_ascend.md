@@ -32,14 +32,31 @@ torch_geometric.nn.global_max_pool
 * FP32, forward only, arbitrary `F >= 0` (non-aligned dims are padded and cropped)
 * `batch` int64, explicit `size` supported, empty group → 0, negative-only groups correct,
   genuine `-inf` max preserved
+* **large-tail feature dims** (`F` above the per-N small-tail threshold: `F ≥ 48825` for
+  `N ≤ 320`, `F ≥ 44737` for `N ≥ 163800`) — the Stage 3C kernel-entry repair and the two Stage 3D
+  kernel repairs are **promoted into the delivery OPP** (Stage 3E); validated at
+  `N = 40…320`, `F = 48825…48960` including non-aligned `F`, `leftSrc`, negative-only data,
+  repeated indices, true `-inf`, empty groups and explicit `size`
 * single NPU (device 0 in the tests)
 
 ## Not yet supported
 
 * backward / `requires_grad=True` (explicitly rejected — Stage 4)
 * FP16 / BF16 (falls through to the original PyG path — Stage 5)
-* Stage 3B largeTail / extreme boundary validation (`F ≳ 4.48–4.89 万` on 910B3, huge N/S)
+* the **extreme combined case** `N ≥ 163800` **and** large-tail `F`: shape-only tiling evidence
+  exists (`F = 44736` → SMALL_TAIL, `F = 44737` → LARGE_TAIL at `N = 163800`), but the runtime is
+  not exercised — the input alone would need ≈29 GB of HBM
 * other PyG scatter reductions (`aten::scatter_reduce` is intentionally not patched)
+
+## Guards (unchanged, still enforced)
+
+```
+index < 491520
+N*(F+1) < 4,026,531,840
+N >= 163800 combined with largeTail: shape-only evidence, runtime not exercised (HBM budget)
+```
+
+This delivery makes no "unlimited arbitrary shapes" claim.
 
 ## Run
 
@@ -75,3 +92,32 @@ call it as `torch_geometric.nn.global_max_pool(...)`), and re-import if you enab
 | AI_CPU tasks in the profiler | **0** |
 | Host CPU fallback on the compat path | **NONE** |
 | system PyG / site-packages modified | **NO** (runtime wrapper + `disable()` restores) |
+
+### Stage 3E — large-tail promotion (2026-09-18)
+
+| item | result |
+|---|---|
+| delivery OPP kernel package | `kernelList = [..._0, ..._1]`, `supportInfo.tilingKey = ["0","1"]` |
+| runtime package provenance | `LD_PRELOAD` open() trace shows only the formal OPP's `ScatterMaxV1_*.o` being opened |
+| large-tail runtime matrix (one shape per process) | LT0–LT6 + LTA1/LTA2 = **9/9 PASS**, `max_abs_diff = 0` |
+| large-tail + `leftSrc` / + padding | **PASS** (LT3/LT5, LT2/LTA1/LTA2, P3, E2E_LT3) |
+| tail attack (last row / final chunk / repeated index / negative-only / `-inf` / empty / explicit size) | **13/13 PASS**, tol 0 |
+| PyG end-to-end large-tail | `E2E_LT1/2/3` **PASS**, `ascend_calls=3 original_calls=0`, fallback **NONE** |
+| profiler | `ScatterMaxV1` = **AI_VECTOR_CORE** (8 tasks per case, entry `_1`), `AI_CPU = 0` |
+| `507035` / `507011` / MTE OOB / AIV exception | **NONE** |
+| index GM 32 B over-read | **REMOVED_BY_FIX** (byte-exact `DataCopyPad` index loads) |
+| regression | Stage 3A **34/34** · Stage 3B **45/45** · Stage 3D **9/9** · Stage 6 demo **PASS** · Stage 6 **20/20** |
+
+Repairs promoted (source diff and evidence):
+
+```
+op_kernel/scatter_max_v1.cpp : `else` -> `else if (TILING_KEY_IS(1))`          (Stage 3C entry)
+op_kernel/CMakeLists.txt     : add_ops_compile_options(ScatterMaxV1 OPTIONS --tiling_key=0,1)
+op_kernel/scatter_max_v1.h   : _idxLocal.GetValue(idxOffset + k) -> GetValue(k) (Stage 3D)
+                               _resGM[idxVal*_tailElemNum] + n*_srcBatchNum     (Stage 3D)
+                               index GM loads -> byte-exact DataCopyPad         (Stage 3E Task E)
+```
+
+Formal delivery build source `/root/zyg/build/scattermax_probe`; runtime OPP
+`/root/zyg/build/scattermax_runtime_opp/vendors/customize` (both paths are the ones used by
+`stage6/env.sh`). Full evidence: `global_max_pool/stage3e_large_tail_delivery_promotion.md`.

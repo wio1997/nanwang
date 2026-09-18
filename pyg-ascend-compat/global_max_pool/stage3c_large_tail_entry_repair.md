@@ -225,3 +225,23 @@ implemented here.
   correctness passes **and** no 507011/MTE/AIV)
 * the frozen FP32 forward delivery (SMALL_TAIL envelope) remains fully green: Stage 3B 45/45,
   Stage 6 demo PASS, Stage 6 20/20 PASS, no host fallback
+
+---
+
+## 19. Status update — Stage 3E promotion (2026-09-18)
+
+The packaging repair described in this report is now part of the **formal delivery package**:
+
+* the delivery build source `/root/zyg/build/scattermax_probe` received the same two changes
+  (`} else if (TILING_KEY_IS(1)) {` in `op_kernel/scatter_max_v1.cpp` and
+  `add_ops_compile_options(ScatterMaxV1 OPTIONS --tiling_key=0,1)` in `op_kernel/CMakeLists.txt`),
+  was clean-rebuilt, and installed as the runtime OPP;
+* the installed package's kernel json now declares
+  `kernelList = [ScatterMaxV1_7d55161965c898907fdb3028d01c7c76_0, …_1]` and
+  `supportInfo.tilingKey = ["0","1"]`;
+* the Stage 3C blocker (large-tail kernel path faulting) was repaired in Stage 3D and is validated
+  on the promoted package in Stage 3E — see `stage3d_large_tail_mte_repair.md` and
+  `stage3e_large_tail_delivery_promotion.md`;
+* this report keeps its `STAGE3C = PARTIAL` verdict for the *historical* probe state; the entry
+  repair itself is now delivered and the large-tail runtime matrix is green
+  (`STAGE3E = PASS`).
