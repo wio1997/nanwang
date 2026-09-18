@@ -255,7 +255,10 @@ host fallback text **NONE**. Log/JSON: `/root/zyg/logs/stage3b/pyg_e2e_results.j
   the device with `507035` / MTE DDR out-of-range; the earlier "adapter raises a clear error"
   wording below describes the *old* package's host-side failure, **not** an adapter guard, and
   large F is therefore still unsupported pending a kernel/tiling fix or a real adapter guard. See
-  `stage3c_large_tail_entry_repair.md`.)**
+  `stage3c_large_tail_entry_repair.md`. **Stage 3D then root-caused and repaired it**: the fault was
+  a garbage index (local lookup off by the block offset) producing a wild GM write, plus a missing
+  `+ n*_srcBatchNum` chunk offset on the write side; with those two lines fixed the large-tail path
+  passes LT0–LT6 and the PyG end-to-end cases — see `stage3d_large_tail_mte_repair.md`.)**
 * delivery envelope update (documentation only, frozen contract unchanged): FP32 forward is
   supported for `F <= 44736` regardless of N, and up to `F <= 48824` for N ≤ 320; above the
   per-N threshold the op cannot run — with the frozen package the launch fails host-side (361001,

@@ -196,6 +196,13 @@ implemented here.
 
 ## 17. Remaining risks
 
+> **Correction (Stage 3D):** the hypothesis quoted above/"in §9" that the large-tail fault comes from
+> the src `DataCopy` length unit (32 B blocks) was **tested and refuted**: replacing that call with a
+> byte-exact `DataCopyPad` did not remove the fault, while fixing the *local index lookup*
+> (`_idxLocal.GetValue(idxOffset + k)` → `GetValue(k)`) did. The large-tail MTE fault was a wild GM
+> write caused by a garbage index, plus a second correctness defect (missing `+ n*_srcBatchNum` on the
+> write side). See `stage3d_large_tail_mte_repair.md`.
+
 1. **largeTail is not usable in this build**: even with a correct kernel entry the path faults
    (`507035` / MTE DDR out-of-range) for every tested F (aligned and non-aligned).
 2. The failure surfaces **asynchronously** (at the next sync), so an adapter guard (threshold per N,
