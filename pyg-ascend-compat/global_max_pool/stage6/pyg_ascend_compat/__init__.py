@@ -10,13 +10,16 @@ Usage::
 The wrapper is installed at runtime on the ``torch_geometric`` module objects; site-packages is
 never modified and the original function is restored by :func:`disable`.
 
-Dispatch (Stage 6 scope, forward only):
+Dispatch (Stage 4 scope: FP32 forward **and** backward):
 
-* x on NPU, float32, 2-D, ``requires_grad=False``
+* x on NPU, float32, 2-D
 * batch on the same NPU, int64, 1-D, ``batch.numel() == x.size(0)``
 * anything else → the original PyG implementation (e.g. CPU, fp16/bf16, 1-D x)
-* NPU + float32 + ``requires_grad=True`` → explicit RuntimeError (Stage 6 has no backward);
-  the call is never silently detached and never sent to the CPU fallback.
+* NPU + float32 + ``requires_grad=True`` **and** grad mode enabled → the Stage 4 autograd
+  ``Function`` (frozen forward + tie-gradient backward). Under ``torch.no_grad()`` the plain
+  forward path is used, exactly like any other PyTorch op.
+* ``batch=None`` → the original PyG implementation (``x.max``); it is native on NPU and is *not*
+  part of the Stage 4 custom backward scope.
 """
 
 from __future__ import annotations
@@ -45,11 +48,13 @@ _STATE: Dict[str, Any] = {
     "debug": False,
     "originals": {},          # module name -> (module object, attribute, original function)
     "adapter": None,
+    "autograd": None,
     "stats": {
         "total_calls": 0,
         "ascend_calls": 0,
         "original_calls": 0,
         "requires_grad_rejected": 0,
+        "autograd_calls": 0,
         "non_fp32_passthrough": 0,
     },
 }
@@ -58,6 +63,13 @@ _ADAPTER_ENV = "PYG_ASCEND_ADAPTER_PATH"
 _ADAPTER_REL = os.path.join("global_max_pool", "stage2", "python", "global_max_pool_ascend.py")
 _ADAPTER_FALLBACKS = (
     "/root/zyg/global_max_pool/stage2/python/global_max_pool_ascend.py",
+)
+
+_AUTOGRAD_ENV = "PYG_ASCEND_AUTOGRAD_PATH"
+_AUTOGRAD_REL = os.path.join("global_max_pool", "stage4", "python",
+                             "global_max_pool_ascend_autograd.py")
+_AUTOGRAD_FALLBACKS = (
+    "/root/zyg/global_max_pool/stage4/python/global_max_pool_ascend_autograd.py",
 )
 
 
@@ -72,6 +84,38 @@ def _candidate_adapter_paths():
         yield os.path.join(cur, _ADAPTER_REL)
         cur = os.path.dirname(cur)
     yield from _ADAPTER_FALLBACKS
+
+
+def _candidate_autograd_paths():
+    env = os.environ.get(_AUTOGRAD_ENV)
+    if env:
+        yield env
+    here = os.path.dirname(os.path.abspath(__file__))
+    cur = here
+    for _ in range(6):
+        yield os.path.join(cur, _AUTOGRAD_REL)
+        cur = os.path.dirname(cur)
+    yield from _AUTOGRAD_FALLBACKS
+
+
+def _load_autograd():
+    """Import the Stage 4 autograd module (forward + tie-gradient backward)."""
+    if _STATE["autograd"] is not None:
+        return _STATE["autograd"]
+    tried = []
+    for path in _candidate_autograd_paths():
+        if path and os.path.isfile(path):
+            spec = importlib.util.spec_from_file_location("pyg_ascend_compat._autograd_impl", path)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            _STATE["autograd"] = module
+            _STATE["autograd_path"] = path
+            return module
+        tried.append(path)
+    raise RuntimeError(
+        "pyg-ascend-compat could not find global_max_pool_ascend_autograd.py. Set "
+        f"{_AUTOGRAD_ENV} to its absolute path. Tried: {tried}"
+    )
 
 
 def _load_adapter():
@@ -139,14 +183,17 @@ def _dispatch(x, batch, size):
     if (batch.device.type != "npu" or batch.device != x.device or batch.dtype != torch.int64
             or batch.dim() != 1 or batch.numel() != x.size(0)):
         return None
-    if x.requires_grad:
-        _STATE["stats"]["requires_grad_rejected"] += 1
-        raise RuntimeError(
-            "pyg-ascend-compat (Stage 6) supports the Ascend global_max_pool forward pass only; "
-            "x.requires_grad=True is not supported yet (backward/tie-gradient is Stage 4). "
-            "Detach the input or run under torch.no_grad(). The call is not silently sent to the "
-            "CPU fallback."
-        )
+    if x.requires_grad and torch.is_grad_enabled():
+        # Stage 4: differentiable Ascend path (frozen forward + tie-gradient backward)
+        autograd = _load_autograd()
+        _STATE["stats"]["autograd_calls"] += 1
+        _STATE["stats"]["ascend_calls"] += 1
+        if _STATE["debug"]:
+            print(
+                "[pyg-ascend-compat] global_max_pool -> ScatterMaxV1 autograd (forward+backward) "
+                f"(x={tuple(x.shape)}, batch={batch.dtype}, size={size})"
+            )
+        return autograd.global_max_pool_ascend_autograd(x, batch, size)
     adapter = _load_adapter()
     _STATE["stats"]["ascend_calls"] += 1
     if _STATE["debug"]:
@@ -221,6 +268,7 @@ def stats() -> Dict[str, Any]:
     out["enabled"] = _STATE["enabled"]
     out["debug"] = _STATE["debug"]
     out["adapter_path"] = _STATE.get("adapter_path")
+    out["autograd_path"] = _STATE.get("autograd_path")
     return out
 
 
