@@ -1,5 +1,9 @@
 # Stage 3D — largeTail MTE root-cause + kernel repair
 
+> **Stage 3E update:** these repairs are now promoted into the formal delivery source/OPP (plus a
+> byte-exact index load closing the 32 B index GM over-read) and re-validated on that package — see
+> `../stage3e_large_tail_delivery_promotion.md`.
+
 **Result: PASS** — the large-tail path now runs correctly on device.
 
 ## Root cause (two defects, both in the large-tail `elemWiseBatchProcess`)

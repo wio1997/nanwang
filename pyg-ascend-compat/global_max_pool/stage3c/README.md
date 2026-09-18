@@ -1,5 +1,10 @@
 # Stage 3C — largeTail kernel entry repair + runtime closure
 
+> **Stage 3E update:** this entry repair is now part of the formal delivery package
+> (`kernelList = [_0,_1]`, `supportInfo.tilingKey = ["0","1"]`); the fault that made this stage
+> PARTIAL was fixed in Stage 3D and validated on the promoted package in Stage 3E — see
+> `../stage3e_large_tail_delivery_promotion.md`.
+
 Goal: make the ScatterMaxV1 package contain a kernel entry for tiling key 1 (`LARGE_TAIL`) and
 close the runtime question left open by Stage 3B.
 

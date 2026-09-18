@@ -185,8 +185,11 @@ untouched (custom OPP stays in `/root/zyg/build/scattermax_runtime_opp`).
   intentionally untouched
 * documented index/shape limits of the custom op are enforced by the adapter:
   `index < size`, `index < 491520` (documented support limit), `N*(F+1) < 4,026,531,840`
-* `F ≳ 4.48–4.89 万` (fp32, 910B3) would switch the kernel to the large-tail path, which is not
-  covered by Stage 3A/6 evidence (Stage 3B)
+* `F ≳ 4.48–4.89 万` (fp32, 910B3) switches the kernel to the large-tail path; that path was
+  *not* covered by the Stage 3A/6 evidence at the time of this report. **Update (Stage 3E):** the
+  Stage 3C/3D large-tail repairs are now promoted into the formal delivery OPP and the large-tail
+  matrix + PyG E2E run green on it — see `stage3e_large_tail_delivery_promotion.md`. The extreme
+  combined case `N ≥ 163800` **and** large-tail `F` remains shape-only (HBM budget).
 * first call in a fresh process pays the ACLNN executor cold start (~1 s); not optimised
 
 ## 9. Delivery verdict

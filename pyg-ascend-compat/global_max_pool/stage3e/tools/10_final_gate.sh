@@ -75,12 +75,22 @@ gate "Stage 6 host fallback BEFORE=YES AFTER=NO" grep -q "BEFORE_HOST_CPU_FALLBA
 
 echo
 echo "## failure-marker sweep over every Stage 3E run log"
-MARKERS='507035|507011|MTE instruction is out of range|vector core exception|aicore exception|AIV exception|npu_cpu_fallback|fall back to run on the CPU'
-hits=$(grep -lE "$MARKERS" "$LOGS"/04_*.log "$LOGS"/05_*.log "$LOGS"/06_*.log "$LOGS"/07_*.log 2>/dev/null || true)
+FAULTS='507035|507011|MTE instruction is out of range|vector core exception|aicore exception|AIV exception'
+hits=$(grep -lE "$FAULTS" "$LOGS"/04_*.log "$LOGS"/05_*.log "$LOGS"/06_*.log "$LOGS"/07_*.log 2>/dev/null || true)
 if [ -z "$hits" ]; then
-    echo "PASS  507035 / 507011 / MTE OOB / AIV exception / host fallback: NONE in any Stage 3E runtime log"
+    echo "PASS  507035 / 507011 / MTE OOB / AIV exception: NONE in any Stage 3E runtime log"
 else
-    echo "FAIL  markers found in: $hits"; FAIL=1
+    echo "FAIL  device-fault markers found in: $hits"; FAIL=1
+fi
+# the Stage 6 suite intentionally triggers the OLD PyG path in its BEFORE phase, so its expected
+# fallback line is excluded; every other Stage 3E log must be free of fallback text
+fb=$(grep -lE 'npu_cpu_fallback|fall back to run on the CPU' "$LOGS"/04_*.log "$LOGS"/05_*.log "$LOGS"/06_*.log 2>/dev/null || true)
+fb6=$(sed -n '/=== phase 0: BEFORE compat/,$p' "$LOGS/07_stage6_tests.log" 2>/dev/null \
+      | grep -E 'npu_cpu_fallback|fall back to run on the CPU' | grep -v 'BEFORE_fallback_expected' || true)
+if [ -z "$fb" ] && [ -z "$fb6" ]; then
+    echo "PASS  host CPU fallback: NONE outside the deliberately-BEFORE Stage 6 phase (before=YES after=NO)"
+else
+    echo "FAIL  unexpected host fallback text: $fb $fb6"; FAIL=1
 fi
 
 echo
@@ -91,9 +101,11 @@ echo
 echo "## git"
 REPO=/root/zyg/nanwang
 gate "branch feat/global-max-pool-scattermax-zyg" bash -c "[ \$(git -C $REPO rev-parse --abbrev-ref HEAD) = feat/global-max-pool-scattermax-zyg ]"
-gate "main unchanged (5816ef6ae20759cf101db21834802fd33f2f7fff)" bash -c "[ \$(git -C $REPO rev-parse main) = 5816ef6ae20759cf101db21834802fd33f2f7fff ]"
+MAIN_PRE=$(sed -n '/^--- main ---$/{n;p;}' "$LOGS/00_pre_state.txt")
+gate "main unchanged (pre-state $MAIN_PRE)" bash -c "[ \$(git -C $REPO rev-parse main) = $MAIN_PRE ]"
 gate "history preserves 5816ef6 -> 1a8df65 -> 382301e -> 028112b" bash -c "git -C $REPO merge-base --is-ancestor 5816ef6 1a8df65 && git -C $REPO merge-base --is-ancestor 1a8df65 382301e && git -C $REPO merge-base --is-ancestor 382301e 028112b"
 gate "git diff --check clean" bash -c "git -C $REPO diff --check"
+gate "frozen baseline 5816ef6 is an ancestor of HEAD" bash -c "git -C $REPO merge-base --is-ancestor 5816ef6 HEAD"
 
 echo
 if [ "$FAIL" -eq 0 ]; then
