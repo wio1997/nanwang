@@ -38,10 +38,14 @@ torch_geometric.nn.global_max_pool
   `N = 40…320`, `F = 48825…48960` including non-aligned `F`, `leftSrc`, negative-only data,
   repeated indices, true `-inf`, empty groups and explicit `size`
 * single NPU (device 0 in the tests)
+* **FP32 first-order backward** (`x.requires_grad=True`): exact PyG/PyTorch tie-gradient semantics
+  (equal split per `(group, feature)`, the `include_self=False` zero-max denominator quirk, empty
+  groups, `-inf`, NaN contagion) — Stage 4; see
+  `global_max_pool/stage4_fp32_backward.md`
 
 ## Not yet supported
 
-* backward / `requires_grad=True` (explicitly rejected — Stage 4)
+* second-order autograd / `create_graph=True` (gradgrad) — Stage 4 is first-order only
 * FP16 / BF16 (falls through to the original PyG path — Stage 5)
 * the **extreme combined case** `N ≥ 163800` **and** large-tail `F`: shape-only tiling evidence
   exists (`F = 44736` → SMALL_TAIL, `F = 44737` → LARGE_TAIL at `N = 163800`), but the runtime is
@@ -92,6 +96,24 @@ call it as `torch_geometric.nn.global_max_pool(...)`), and re-import if you enab
 | AI_CPU tasks in the profiler | **0** |
 | Host CPU fallback on the compat path | **NONE** |
 | system PyG / site-packages modified | **NO** (runtime wrapper + `disable()` restores) |
+
+### Stage 4 — FP32 backward (2026-09-18)
+
+| item | result |
+|---|---|
+| CPU gradient oracle (real PyG/PyTorch on CPU) | frozen contract, validated as an executable model on **300/300** random cases |
+| tie semantics | equal split per `(group, feature)`; zero-valued maxima get `+1` in the denominator (PyTorch `include_self=False` backward quirk, proven by a controlled experiment) |
+| empty groups / `-inf` / NaN / ±0 | matched exactly (NaN ⇒ every row of that cell gets `nan`) |
+| backward matrix vs CPU oracle | **35/35 PASS** (31/32 gradient cases bit-exact, max **1 ULP** on tie-split cells) |
+| real PyG API E2E backward | **11/11 PASS**, `ascend_calls=10 original_calls=0 autograd_calls=10` |
+| profiler (forward+loss+backward) | `ScatterMaxV1` AI_VECTOR_CORE; `GatherV3/Equal/Cast/InplaceIndexAdd/RealDiv/Mul/MaskedFill` all device; **AI_CPU = 0**; `aten::scatter_reduce` **NOT CALLED** |
+| host CPU fallback | **NONE** |
+| forward regression | Stage 3A 34/34 · 3B 45/45 · 3D 9/9 · 3E 13/13 · Stage 6 demo PASS · 6 20/20 · Stage 2 16/16 |
+| `batch=None` | PyG `x.max` path, native on NPU, unchanged (outside the Stage 4 custom-backward scope) |
+
+Known numerical note: the Ascend vector unit has no correctly-rounded fp32 divide (and no fp64), so
+tie-split cells can differ from the IEEE-rounded CPU result by **≤1 ULP**; winner masks, counts,
+zeros and NaN structure are exact.
 
 ### Stage 3E — large-tail promotion (2026-09-18)
 
