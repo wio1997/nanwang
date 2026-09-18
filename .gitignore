@@ -3,3 +3,8 @@ __pycache__/
 .DS_Store
 profile_complete/
 
+
+# Stage 1B runtime artifacts (built binaries / dumps / packages)
+stage1b/results/
+scattermaxv1_runner
+*.run
