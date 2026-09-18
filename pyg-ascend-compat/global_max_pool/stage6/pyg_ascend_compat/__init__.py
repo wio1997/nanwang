@@ -10,14 +10,16 @@ Usage::
 The wrapper is installed at runtime on the ``torch_geometric`` module objects; site-packages is
 never modified and the original function is restored by :func:`disable`.
 
-Dispatch (Stage 4 scope: FP32 forward **and** backward):
+Dispatch (Stage 5 scope: FP32 + FP16 + BF16 forward and first-order backward):
 
-* x on NPU, float32, 2-D
+* x on NPU, 2-D, dtype float32 / float16 / bfloat16
 * batch on the same NPU, int64, 1-D, ``batch.numel() == x.size(0)``
-* anything else → the original PyG implementation (e.g. CPU, fp16/bf16, 1-D x)
-* NPU + float32 + ``requires_grad=True`` **and** grad mode enabled → the Stage 4 autograd
-  ``Function`` (frozen forward + tie-gradient backward). Under ``torch.no_grad()`` the plain
-  forward path is used, exactly like any other PyTorch op.
+* anything else → the original PyG implementation (e.g. CPU, 1-D x, other dtypes)
+* float32: Stage 4 autograd ``Function`` (frozen ScatterMaxV1 forward + tie-gradient backward)
+* float16/bfloat16: Stage 5 entry — device ``Cast`` to fp32, frozen ScatterMaxV1, cast back
+  (forward) and the dtype-exact tie-gradient backward; the delivered OPP itself is fp32-only.
+* ``requires_grad=True`` with grad mode enabled uses the autograd entry; under ``torch.no_grad()``
+  the plain forward path is used, exactly like any other PyTorch op.
 * ``batch=None`` → the original PyG implementation (``x.max``); it is native on NPU and is *not*
   part of the Stage 4 custom backward scope.
 """
@@ -49,12 +51,15 @@ _STATE: Dict[str, Any] = {
     "originals": {},          # module name -> (module object, attribute, original function)
     "adapter": None,
     "autograd": None,
+    "stage5": None,
     "stats": {
         "total_calls": 0,
         "ascend_calls": 0,
         "original_calls": 0,
         "requires_grad_rejected": 0,
         "autograd_calls": 0,
+        "dtype16_forward_calls": 0,
+        "dtype16_autograd_calls": 0,
         "non_fp32_passthrough": 0,
     },
 }
@@ -70,6 +75,13 @@ _AUTOGRAD_REL = os.path.join("global_max_pool", "stage4", "python",
                              "global_max_pool_ascend_autograd.py")
 _AUTOGRAD_FALLBACKS = (
     "/root/zyg/global_max_pool/stage4/python/global_max_pool_ascend_autograd.py",
+)
+
+_STAGE5_ENV = "PYG_ASCEND_STAGE5_PATH"
+_STAGE5_REL = os.path.join("global_max_pool", "stage5", "python",
+                           "global_max_pool_ascend_dtype.py")
+_STAGE5_FALLBACKS = (
+    "/root/zyg/global_max_pool/stage5/python/global_max_pool_ascend_dtype.py",
 )
 
 
@@ -115,6 +127,38 @@ def _load_autograd():
     raise RuntimeError(
         "pyg-ascend-compat could not find global_max_pool_ascend_autograd.py. Set "
         f"{_AUTOGRAD_ENV} to its absolute path. Tried: {tried}"
+    )
+
+
+def _candidate_stage5_paths():
+    env = os.environ.get(_STAGE5_ENV)
+    if env:
+        yield env
+    here = os.path.dirname(os.path.abspath(__file__))
+    cur = here
+    for _ in range(6):
+        yield os.path.join(cur, _STAGE5_REL)
+        cur = os.path.dirname(cur)
+    yield from _STAGE5_FALLBACKS
+
+
+def _load_stage5():
+    """Import the Stage 5 FP16/BF16 module (cast-based forward + dtype backward)."""
+    if _STATE["stage5"] is not None:
+        return _STATE["stage5"]
+    tried = []
+    for path in _candidate_stage5_paths():
+        if path and os.path.isfile(path):
+            spec = importlib.util.spec_from_file_location("pyg_ascend_compat._stage5_impl", path)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            _STATE["stage5"] = module
+            _STATE["stage5_path"] = path
+            return module
+        tried.append(path)
+    raise RuntimeError(
+        "pyg-ascend-compat could not find global_max_pool_ascend_dtype.py. Set "
+        f"{_STAGE5_ENV} to its absolute path. Tried: {tried}"
     )
 
 
@@ -172,8 +216,9 @@ def _dispatch(x, batch, size):
     """Return the adapter result, or None when the original PyG path must be used."""
     if not isinstance(x, torch.Tensor):
         return None
-    if x.device.type != "npu" or x.dtype != torch.float32 or x.dim() != 2:
-        if isinstance(x, torch.Tensor) and x.device.type == "npu" and x.dtype != torch.float32:
+    dtype16 = x.dtype in (torch.float16, torch.bfloat16)
+    if x.device.type != "npu" or (x.dtype != torch.float32 and not dtype16) or x.dim() != 2:
+        if x.device.type == "npu" and x.dtype != torch.float32 and not dtype16:
             _STATE["stats"]["non_fp32_passthrough"] += 1
             if _STATE["debug"]:
                 print(f"[pyg-ascend-compat] passthrough (dtype={x.dtype}) -> original PyG path")
@@ -183,6 +228,25 @@ def _dispatch(x, batch, size):
     if (batch.device.type != "npu" or batch.device != x.device or batch.dtype != torch.int64
             or batch.dim() != 1 or batch.numel() != x.size(0)):
         return None
+    if dtype16:
+        # Stage 5: device cast chain (dtype -> fp32 -> ScatterMaxV1 -> dtype) + dtype backward
+        stage5 = _load_stage5()
+        _STATE["stats"]["ascend_calls"] += 1
+        if x.requires_grad and torch.is_grad_enabled():
+            _STATE["stats"]["dtype16_autograd_calls"] += 1
+            if _STATE["debug"]:
+                print(
+                    "[pyg-ascend-compat] global_max_pool -> Stage5 dtype autograd "
+                    f"(dtype={x.dtype}, x={tuple(x.shape)}, size={size})"
+                )
+            return stage5.global_max_pool_ascend_dtype(x, batch, size)
+        _STATE["stats"]["dtype16_forward_calls"] += 1
+        if _STATE["debug"]:
+            print(
+                "[pyg-ascend-compat] global_max_pool -> Stage5 dtype forward "
+                f"(dtype={x.dtype}, x={tuple(x.shape)}, size={size})"
+            )
+        return stage5.global_max_pool_ascend_dtype(x, batch, size)
     if x.requires_grad and torch.is_grad_enabled():
         # Stage 4: differentiable Ascend path (frozen forward + tie-gradient backward)
         autograd = _load_autograd()
@@ -269,6 +333,7 @@ def stats() -> Dict[str, Any]:
     out["debug"] = _STATE["debug"]
     out["adapter_path"] = _STATE.get("adapter_path")
     out["autograd_path"] = _STATE.get("autograd_path")
+    out["stage5_path"] = _STATE.get("stage5_path")
     return out
 
 
