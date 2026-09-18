@@ -29,10 +29,15 @@ Usage in application code:
 
 ```python
 import pyg_ascend_compat
-pyg_ascend_compat.enable()          # once, before importing the PyG symbol
-from torch_geometric.nn import global_max_pool
+pyg_ascend_compat.enable()             # 1) enable first
+from torch_geometric.nn import global_max_pool   # 2) then import the PyG symbol
 out = global_max_pool(x, batch, size)
 ```
+
+**Import order constraint:** `enable()` must happen *before* `from torch_geometric.nn import
+global_max_pool`. An earlier `from ... import ...` binds the original function object and later
+`enable()` calls cannot rebind that local name (re-import after enabling, or call
+`torch_geometric.nn.global_max_pool(...)` which is always rebound).
 
 `disable()` restores the original PyG function; `stats()` reports the call counters
 (`ascend_calls` vs `original_calls`); `set_debug(True)` prints one line per dispatched call.
