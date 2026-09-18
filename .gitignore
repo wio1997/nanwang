@@ -8,3 +8,6 @@ profile_complete/
 stage1b/results/
 scattermaxv1_runner
 *.run
+# Stage 2 extension artifacts (built .so lives outside the repo)
+*.so
+stage2/**/__pycache__/
