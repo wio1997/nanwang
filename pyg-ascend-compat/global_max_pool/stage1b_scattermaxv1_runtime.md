@@ -14,16 +14,22 @@ is supported. No PyG / torch_npu / mx_driving integration in this stage.
 | Does the `ScatterMaxV1` runtime depend on `ScatterMaxArgmaxV1`? | **No** | `KernelScatterMaxV1` never reads/writes `argmax` GM; the two ops are separate `OpDef`s with separate kernel entries and separate ACLNN APIs |
 | Can `aclnnScatterMaxV1` be executed alone? | **Yes** | every Stage 1B test called only `aclnnScatterMaxV1GetWorkspaceSize` + `aclnnScatterMaxV1`; `aclnnScatterMaxArgmaxV1` was never called, and all 6 cases produced correct results |
 | Why did the Stage 1A build also emit an Argmax kernel? | Because the op_host source declares **both** `OpDef`s (`OP_ADD(ScatterMaxV1)`, `OP_ADD(ScatterMaxArgmaxV1)`) and `op_kernel/` contained both kernel entry files. The toolkit builds one kernel target per declared op (`ScatterMaxV1_ascend910b`, `ScatterMaxArgmaxV1_ascend910b`) |
-| If `scatter_max_argmax_v1.cpp` is dropped from the kernel source list | `ScatterMaxV1` still compiles (`[100%] Built target ScatterMaxV1_ascend910b`), **but** the build then fails overall: `[ERROR]: operator: scatter_max_argmax_v1 source file: .../scatter_max_argmax_v1.cpp does not found` → `binary` target fails → `binary/config` missing → `CPack`/install fails. The blocker is the still-declared `ScatterMaxArgmaxV1` **OpDef**, not a dependency of `ScatterMaxV1` |
+| If `scatter_max_argmax_v1.cpp` is dropped from the kernel source list (copy A) | `ScatterMaxV1` still compiles (`[100%] Built target ScatterMaxV1_ascend910b`), **but** the build then fails overall: `[ERROR]: operator: scatter_max_argmax_v1 source file: .../scatter_max_argmax_v1.cpp does not found` → `binary` target fails → `binary/config` missing → `CPack`/install fails. The blocker is the still-declared `ScatterMaxArgmaxV1` **OpDef**, not a dependency of `ScatterMaxV1` |
+| Dropping the argmax kernel **and** the `ScatterMaxArgmaxV1` OpDef (copy B, probe only) | build exits 0, package `custom_opp_ubuntu_aarch64.run` (292 KB) contains **only** `scatter_max_v1` kernel + config; installed to a second isolated dir (`/root/zyg/build/scattermax_fwdonly_opp`) and `aclnnScatterMaxV1` ran correctly (T1 and T4 re-run against the forward-only package: both PASS, max_abs_diff 0) |
 
-Log: `/root/zyg/logs/stage1b_forward_only_build.log`
+Logs:
+
+* `/root/zyg/logs/stage1b_forward_only_build.log` (copy A, argmax kernel file removed only)
+* `/root/zyg/logs/stage1b_forward_only_build2.log` (copy B, argmax kernel + OpDef removed) — exit 0
+* `/root/zyg/logs/stage1b_forward_only_runtime.log` (T1/T4 against the forward-only package)
 
 **FORWARD_ONLY_INDEPENDENT = YES**
 
 Runtime-wise `ScatterMaxV1` is fully independent of `ScatterMaxArgmaxV1`. Packaging-wise the two ops
-are currently declared in the same op_host file, so a trimmed forward-only package requires removing
-the `ScatterMaxArgmaxV1` `OpDef` block as well (a ~30-line deletion in a copy; not done in this stage
-because it is a package-shaping decision, not a runtime dependency).
+are currently declared in the same op_host file; a trimmed forward-only package therefore requires
+removing the `ScatterMaxArgmaxV1` `OpDef` block as well (a 1393-byte deletion, applied only to a
+build-probe copy via `stage1b/tools/strip_argmax_opdef.py`). That is a package-shaping option for
+Stage 2, not a runtime dependency.
 
 Note for Stage 2: the generated `aclnnScatterMaxV1` signature **requires an argmax output tensor**
 (`resOut` *and* `argmaxOut`), because the OpDef declares two outputs. A forward-only caller must
