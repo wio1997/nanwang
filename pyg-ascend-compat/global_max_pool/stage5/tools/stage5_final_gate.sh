@@ -47,7 +47,10 @@ gate "fp16 31/31 with zero ULP" grep -q "^fp16: TOTAL 31 PASS 31 FAIL 0 | gradie
 gate "bf16 31/31 with zero ULP" grep -q "^bf16: TOTAL 31 PASS 31 FAIL 0 | gradient bit-exact 31/31 | max ULP 0" "$LOGS/stage5_dtype_tests.log"
 gate "no mismatch/fallback in any Stage 5 dtype case" bash -c "! grep -E '\[(fp16|bf16)\] .* FAIL' $LOGS/stage5_dtype_tests.log && ! grep -q 'fallback=[1-9]' $LOGS/stage5_dtype_tests.log"
 gate "real PyG E2E 25/25 PASS" grep -q "^TOTAL 25  PASS 25  FAIL 0" "$LOGS/stage5_pyg_e2e.log"
-gate "E2E counters: ascend 24, original 0, dtype16 auto 22 / fwd 2" grep -q "ascend_calls=24 original_calls=0" "$LOGS/stage5_pyg_e2e.log"
+gate "E2E counters: ascend 24, original 0, dtype16 auto 22 / fwd 2" bash -c "
+  grep -q \"'ascend_calls': 24, 'original_calls': 0\" $LOGS/stage5_pyg_e2e.log &&
+  grep -q \"'dtype16_autograd_calls': 22\" $LOGS/stage5_pyg_e2e.log &&
+  grep -q \"'dtype16_forward_calls': 2\" $LOGS/stage5_pyg_e2e.log"
 gate "batch=None fp16/bf16 native + delegated" grep -q "BATCH_NONE_DTYPE: PASS" "$LOGS/batch_none_dtype_probe.log"
 
 echo
