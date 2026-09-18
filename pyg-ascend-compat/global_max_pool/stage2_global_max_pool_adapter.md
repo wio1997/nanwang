@@ -140,8 +140,14 @@ First call in a fresh process was ~0.99 s (cold `aclnnScatterMaxV1GetWorkspaceSi
 
 ## 9. Known limitations (real ones only)
 
+> **Update (Stage 3A):** the aligned-F restriction below has been lifted. The adapter now accepts any
+> `F >= 0`: aligned dims keep this Stage 2 raw path, non-aligned dims are padded to
+> `ceil(F/8)*8` with `-inf` and cropped back (and the raw non-aligned path itself was proven safe).
+> See `stage3a_non_aligned_feature.md`. The Stage 2 test id A9 is kept as a positive regression
+> case for F=7.
+
 * FP32 only (fp16/bf16 → Stage 5)
-* aligned feature dim only, `F % 8 != 0` rejected (non-aligned → Stage 3)
+* ~~aligned feature dim only, `F % 8 != 0` rejected~~ (superseded by Stage 3A)
 * forward only; `requires_grad=True` rejected (backward/tie-gradient → Stage 4)
 * ScatterMaxV1 index must be INT32; the adapter handles the INT64→INT32 conversion and the
   `batch < 491520` documented bound

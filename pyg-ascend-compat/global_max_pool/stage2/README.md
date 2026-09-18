@@ -45,7 +45,8 @@ out = global_max_pool_ascend(x, batch, size)   # size=None -> max(batch)+1
 Semantics: empty group → 0; non-empty group → exact max, **including a genuine `-inf` max**
 (occupancy mask, not `out == -inf → 0`).
 
-Limits (Stage 2): fp32 only, `F % 8 == 0`, forward only (`requires_grad=True` is rejected),
-batch must be int64 with `0 <= idx < min(size, 491520)`.
+Limits: fp32 only, forward only (`requires_grad=True` is rejected), batch must be int64 with
+`0 <= idx < min(size, 491520)`. Any `F >= 0` is accepted — see Stage 3A for the non-aligned
+(padded) feature path.
 
 Details, profiler evidence and the full matrix: `../stage2_global_max_pool_adapter.md`.

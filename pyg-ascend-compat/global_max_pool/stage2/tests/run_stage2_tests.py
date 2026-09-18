@@ -156,9 +156,10 @@ def main():
     b = torch.tensor([0, 5, 3, 3, 7, 1, 0, 2, 5, 7, 7, 4], dtype=torch.int64)
     check("A8_F16", x, b)
 
-    # ---- A9 invalid feature dim (must reject before kernel) ----
-    check("A9_invalid_F7", build(4, 7, "mixed", 9), torch.tensor([0, 1, 0, 1], dtype=torch.int64),
-          size=2, expect_error=ValueError)
+    # ---- A9 feature dim: F=7 was rejected in Stage 2, is supported from Stage 3A on
+    #      (padded path). Kept here as a positive regression case. ----
+    check("A9_F7_supported_since_3A", build(4, 7, "mixed", 9),
+          torch.tensor([0, 1, 0, 1], dtype=torch.int64), size=2)
 
     # ---- A10 index >= size (must reject before kernel) ----
     check("A10_index_ge_size", build(4, 8, "mixed", 10), torch.tensor([0, 3, 0, 1], dtype=torch.int64),
