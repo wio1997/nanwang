@@ -251,9 +251,15 @@ host fallback text **NONE**. Log/JSON: `/root/zyg/logs/stage3b/pyg_e2e_results.j
 * the `LARGE_TAIL` kernel path cannot execute in the delivered package (missing tiling-key entry
   `_1`); it fails **before device execution** with a deterministic 361001 error, so there is no
   correctness or memory-safety exposure
+  **(updated by Stage 3C:** the entry was repaired — `_1` now exists — and the path then faults on
+  the device with `507035` / MTE DDR out-of-range; the earlier "adapter raises a clear error"
+  wording below describes the *old* package's host-side failure, **not** an adapter guard, and
+  large F is therefore still unsupported pending a kernel/tiling fix or a real adapter guard. See
+  `stage3c_large_tail_entry_repair.md`.)**
 * delivery envelope update (documentation only, frozen contract unchanged): FP32 forward is
   supported for `F <= 44736` regardless of N, and up to `F <= 48824` for N ≤ 320; above the
-  per-N threshold the adapter raises a clear error instead of producing wrong results
+  per-N threshold the op cannot run — with the frozen package the launch fails host-side (361001,
+  see Stage 3C for the repaired-entry behaviour: device exception 507035)
 
 ## 14. Reproduction
 
