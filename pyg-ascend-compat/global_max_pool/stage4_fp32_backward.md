@@ -209,6 +209,13 @@ the corpus 31/32 gradient comparisons are bit-exact.
 
 ## 12. Files
 
+### Post-freeze sanity
+
+After the Stage 4 commits, `tests/post_freeze_sanity.py` was re-run against the frozen HEAD
+`ede301f696749943a6ab08b2b515d1979b30a5cf` through the real PyG API: tie case, largeTail
+`N=40 F=48825`, NaN group and `±0` group all show `fwd_max_diff=0`, `grad_max_abs_diff=0`,
+identical NaN patterns, `fallback=0` (`logs/stage4/stage4_post_freeze_sanity.log`).
+
 ```
 global_max_pool/stage4/
   python/global_max_pool_ascend_autograd.py     NEW  autograd.Function + backward
@@ -219,7 +226,9 @@ global_max_pool/stage4/
   tests/run_stage4_backward_tests.py            35-case matrix + invariants
   tests/run_stage4_pyg_e2e.py                   real PyG API E2E backward
   tests/profile_stage4_backward.py              msprof app (forward+loss+backward)
+  tests/post_freeze_sanity.py                   frozen-HEAD sanity (real PyG API backward)
   tools/run_stage4_profiler.sh                  P-BWD1..4 profiler gate
+  tools/stage4_final_gate.sh                    consolidated Stage 4 hard gate
   tools/stage4_primitive_audit.py               NPU primitive/fallback audit
   tools/run_stage4_regressions.sh               full regression sweep
 global_max_pool/stage4_cpu_gradient_oracle.md   frozen gradient contract
