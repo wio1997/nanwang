@@ -28,11 +28,25 @@ PyG      : 2.8.0.post1
 feat/global-max-pool-scattermax-zyg
 ```
 
-最终冻结提交：
+最终算子实现冻结（operator implementation freeze）：
 
 ```text
+Operator implementation frozen at:
 c15423e7b303d2b1597621c64585252472301537
 ```
+
+说明：
+
+```text
+c15423e = final operator implementation freeze
+
+README_DELIVERY.md is maintained by later docs-only commits.
+Those commits do not change the frozen operator implementation.
+```
+
+也就是说，本文档所在的 `feat/global-max-pool-scattermax-zyg` 分支 HEAD 可能比
+`c15423e` 更新（后续只可能是 docs-only commit）；**算子实现本身仍然冻结在 `c15423e`**，
+不要把后续 docs-only SHA 当成新的「算子最终 HEAD」。
 
 ---
 
@@ -646,16 +660,39 @@ N = 41
 
 ## 10. 如何测试
 
-### 10.1 Checkout
+### 10.1 Checkout：两种用途
 
-建议直接使用冻结 commit：
+**（一）阅读交付文档 / 使用当前交付分支**
 
 ```bash
 git checkout feat/global-max-pool-scattermax-zyg
+```
+
+当前 feature branch 同时包含：
+
+```text
+frozen operator implementation
++
+later docs-only delivery documentation
+```
+
+**（二）精确复现冻结算子版本**
+
+如果 Reviewer 需要严格复现最终 operator implementation：
+
+```bash
 git checkout c15423e7b303d2b1597621c64585252472301537
 ```
 
-确认：
+需要注意：
+
+```text
+This commit is the frozen operator implementation.
+Later commits only add/update delivery documentation.
+```
+
+该 checkout 会进入 detached HEAD（这是预期行为）；同时该 commit 不包含之后新增的
+`README_DELIVERY.md`。两种方式下都请确认：
 
 ```bash
 git status
@@ -665,7 +702,44 @@ git status
 
 ---
 
-### 10.2 基本 PyG API 测试
+### 10.2 运行前提（本容器 / 本仓库）
+
+本文档中所有命令都在以下环境中实际执行并通过（exit code = 0）：
+
+```text
+container : wio-pyg-cann851-pyg280
+workdir   : <repo>/pyg-ascend-compat
+formal OPP: /root/zyg/build/scattermax_runtime_opp/vendors/customize
+```
+
+先准备环境（`stage6/env.sh` 会设置 `ASCEND_CUSTOM_OPP_PATH`、`LD_LIBRARY_PATH`、
+`PYG_ASCEND_ADAPTER_PATH`、`SCATTERMAXV1_BRIDGE` 与兼容包 `PYTHONPATH`）：
+
+```bash
+cd <repo>/pyg-ascend-compat
+
+export STAGE6_OPP=/root/zyg/build/scattermax_runtime_opp/vendors/customize
+source /root/zyg/global_max_pool/stage6/env.sh
+
+# 该容器中的 CANN/msprof 工具链需要额外的 python 依赖目录（例如 decorator）
+export PYTHONPATH=/root/pyg_feasibility/R009-scattermax-raw-callability/deps:$PYTHONPATH
+
+# 可选：把测试输出重定向到独立目录，避免覆盖已归档的 evidence 日志
+export STAGE5_LOGS=/root/zyg/logs/stage5_review
+mkdir -p "$STAGE5_LOGS"
+```
+
+说明：Stage 5 的脚本默认使用容器内工作副本路径（`/root/zyg/global_max_pool/...`、
+`/root/zyg/logs/stage5`、`/root/zyg/profiler/stage5`），可用 `STAGE5_LOGS`、
+`STAGE5_OPP`、`STAGE5_PROFILE_APP`、`STAGE5_PROF_ROOT` 覆盖。
+
+---
+
+### A. Quick API smoke test
+
+最小的 PyG forward/backward 示例。
+
+#### A.1 基本 PyG API 测试
 
 需要先加载项目提供的 Ascend compatibility package。
 
@@ -736,7 +810,7 @@ x.grad
 
 ---
 
-### 10.3 FP16 / BF16
+#### A.2 FP16 / BF16
 
 将：
 
@@ -769,7 +843,7 @@ print(x.grad.dtype)
 
 ---
 
-### 10.4 Tie gradient
+#### A.3 Tie gradient
 
 例如：
 
@@ -797,7 +871,7 @@ print(x.grad)
 
 ---
 
-### 10.5 Zero-max 特殊测试
+#### A.4 Zero-max 特殊测试
 
 建议额外测试：
 
@@ -827,26 +901,123 @@ print(x.grad)
 
 ---
 
-## 11. 自动化测试
-
-Stage 5 提供 consolidated final gate：
-
-```bash
-cd pyg-ascend-compat
-
-bash global_max_pool/stage5/tools/stage5_final_gate.sh
-```
-
-该 gate 会检查 Stage 5 的关键 correctness evidence，包括：
+#### A.5 示例实测结果（本文档核验）
 
 ```text
-FP16 semantic matrix
-BF16 semantic matrix
-real PyG E2E
-dtype counters
-batch=None delegation
-fallback checks
+A.1 smoke      : out = [[3.0, 5.0], [4.0, 6.0]]，x.grad 正常生成
+A.2 dtype      : float32 / float16 / bfloat16 的 out.dtype == x.grad.dtype == 输入 dtype
+A.3 tie        : out = [[3.0]]，grad = 0.5 / 0.5
+A.4 zero-max   : out = [[0.0]]，grad = 1/3, 1/3（fp32 表现为 0.3333333432674408）
 ```
+
+---
+
+### B. Correctness matrix（FP16 / BF16）
+
+```bash
+python3 global_max_pool/stage5/tests/run_stage5_dtype_tests.py
+```
+
+结果（实测 exit code = 0）：
+
+```text
+fp16: TOTAL 31 PASS 31 FAIL 0 | gradient bit-exact 31/31 | max ULP 0
+bf16: TOTAL 31 PASS 31 FAIL 0 | gradient bit-exact 31/31 | max ULP 0
+TOTAL 62  PASS 62  FAIL 0
+```
+
+---
+
+### C. Real PyG E2E
+
+```bash
+python3 global_max_pool/stage5/tests/run_stage5_pyg_e2e.py
+```
+
+结果（实测 exit code = 0）：
+
+```text
+TOTAL 25  PASS 25  FAIL 0
+counters -> PASS (autograd=22/22, forward=2/2, original=0)
+```
+
+---
+
+### D. FP32 regression（确认 frozen FP32 path 未回退）
+
+```bash
+bash global_max_pool/stage5/tools/run_stage5_regressions.sh
+```
+
+该脚本自带环境（会自行设置正式 OPP / adapter / bridge 并 source `stage6/env.sh`），
+完整回归耗时约 6–8 分钟，并会同时重跑 Stage 5 correctness/E2E 与 Stage 4 profiler sanity。
+
+结果（实测 exit code = 0）：
+
+```text
+PASS  FP32 Stage 3A 34/34      PASS  FP32 Stage 3B 45/45
+PASS  FP32 Stage 3D 9/9        PASS  FP32 Stage 3E 13/13
+PASS  Stage 6 demo PASS        PASS  Stage 6 20/20
+PASS  Stage 2 16/16            PASS  FP32 Stage 4 bwd 35/35
+PASS  FP32 Stage 4 E2E 11/11   PASS  Stage 5 dtype 62/62
+PASS  Stage 5 E2E 25/25        PASS  Stage 4 profiler sanity
+PASS  FP32 no new ULP regression (max ULP <= 1)
+[DONE] script_failed=0 gate_failed=0
+```
+
+---
+
+### E. Profiler verification（optional，约 3–5 分钟）
+
+确认 forward / loss / backward 都运行在 device 上（验收标准见 §12）：
+
+```bash
+# 可选：把 profiler 原始输出也重定向，避免覆盖已归档的 profiler evidence
+export STAGE5_PROF_ROOT=/root/zyg/profiler/stage5_review
+
+bash global_max_pool/stage5/tools/run_stage5_profiler.sh
+```
+
+结果（实测 exit code = 0）：
+
+```text
+forward-on-device gates: 8
+no-AI_CPU gates: 8
+no-scatter_reduce gates: 8
+[DONE] failed=0
+```
+
+---
+
+### F. Historical final gate note（`stage5_final_gate.sh`）
+
+`global_max_pool/stage5/tools/stage5_final_gate.sh` 是 **historical Stage 5 development/freeze
+gate**，它用于 Stage 5 开发期间（以及 Stage 5 远程 freeze 之前）确认前置 Stage 4 已冻结。
+
+其第一段检查是一条**历史性的 remote-head 断言**：
+
+```text
+origin/feat/global-max-pool-scattermax-zyg == a586e48    (Stage 4 freeze)
+```
+
+Stage 5 正式完成并 push 到 `c15423e` 之后，该历史断言按设计不再成立：
+
+```text
+post-freeze execution may report PARTIAL/FAIL only because its historical
+remote-head assertion expects the pre-Stage-5 value a586e48.
+This does not indicate a correctness regression.
+```
+
+因此：
+
+* 该脚本属于 Stage 5 冻结工具，**不做修改**；
+* **不要**把它的 post-freeze 运行结果当作「一键全 PASS」判据；
+* Reviewer 当前应使用上面的 A–E 命令进行验证（这些命令在 post-freeze 状态下实测 exit code = 0）；
+* 该脚本其余 correctness / profiler / FP32 regression / git 检查在 post-freeze 状态下仍然 PASS。
+
+---
+
+## 11. 测试资产清单
 
 Stage 5 测试代码位于：
 
@@ -916,6 +1087,8 @@ Stage 5 profiler 脚本：
 bash global_max_pool/stage5/tools/run_stage5_profiler.sh
 ```
 
+（运行前提与实测结果见 §10 的 E 小节。）
+
 覆盖：
 
 ```text
@@ -969,15 +1142,23 @@ profiler:
 
 ## 14. 最终状态
 
-最终冻结版本：
+算子实现最终冻结版本（operator implementation freeze）：
 
 ```text
 branch:
 feat/global-max-pool-scattermax-zyg
 
-HEAD:
+Operator implementation frozen at:
 c15423e7b303d2b1597621c64585252472301537
 ```
+
+```text
+README_DELIVERY.md is maintained by later docs-only commits.
+Those commits do not change the frozen operator implementation.
+```
+
+当前分支 HEAD 可能比 `c15423e` 更新（例如本文档所在的 docs-only commit）；这些后续 commit
+**只新增/更新交付文档**，不改变算子实现，也不构成新的「算子最终 HEAD」。
 
 main 保持未修改：
 
@@ -1019,20 +1200,44 @@ aten::scatter_reduce: NOT CALLED
    （同目录还包含 `cpu_dtype_arithmetic_probe.py`、`cpu_dtype_div_search.py` 与
    `stage5/tools/{dtype_probe.cpp,run_stage5_regressions.sh}`）。
 
-2. 运行前提：`stage5_final_gate.sh` 与 `run_stage5_profiler.sh` 默认读取容器内的工作路径
-   （`STAGE5_LOGS=/root/zyg/logs/stage5`、正式 OPP
-   `/root/zyg/build/scattermax_runtime_opp/vendors/customize`，gate 的 git 检查固定使用
-   `/root/zyg/nanwang`）。这些默认值可用 `STAGE5_LOGS` / `STAGE5_OPP` / `STAGE5_PROFILE_APP`
-   覆盖；在其它环境中执行前需要先设置对应变量。
+2. Checkout 说明已按冻结语义修正：`feat/global-max-pool-scattermax-zyg` 用于「阅读文档 / 使用当前
+   交付分支」（包含 frozen operator implementation + later docs-only documentation）；
+   `c15423e7b303d2b1597621c64585252472301537` 用于「精确复现冻结算子版本」（detached HEAD，
+   且该 commit 不包含之后新增的 `README_DELIVERY.md`）。
 
-3. `stage5_final_gate.sh` 的第一段检查断言的是 Stage 5 远程 freeze **之前**的历史状态
-   （`origin/feat/global-max-pool-scattermax-zyg == a586e48`，即 Stage 4 freeze）。本阶段经人工
-   review 后已完成最终远程 freeze，现在 `origin/feat/global-max-pool-scattermax-zyg == c15423e`，
-   因此该脚本会把这一条**历史性检查**报为 `FAIL`，其余 correctness / profiler / FP32 regression /
-   git 检查仍全部 `PASS`，脚本结尾相应显示 `STAGE5: PARTIAL / FAIL`。该脚本属于 Stage 5 冻结
-   工具，本轮未做修改。
+3. 运行前提：Stage 5 脚本默认读取容器内工作副本路径（`STAGE5_LOGS=/root/zyg/logs/stage5`、
+   正式 OPP `/root/zyg/build/scattermax_runtime_opp/vendors/customize`、profiler app
+   `/root/zyg/stage5/tests/profile_stage5_case.py`、profiler 输出
+   `/root/zyg/profiler/stage5`；`stage5_final_gate.sh` 的 git 检查固定使用
+   `/root/zyg/nanwang`）。这些默认值可用 `STAGE5_LOGS` / `STAGE5_OPP` / `STAGE5_PROFILE_APP` /
+   `STAGE5_PROF_ROOT` 覆盖；在其它环境中执行前需要先设置对应变量。
 
-4. 正文 §10 的示例已在真实环境逐字执行验证：§10.2 的 forward 输出为 `[[3, 5], [4, 6]]` 且
-   `x.grad` 正常生成；§10.4 的 2-way tie 得到 `0.5 / 0.5`；§10.5 的 zero-max case 得到
-   `1/3, 1/3`（与正文警告一致）；§10.3 的 `float32 / float16 / bfloat16` 输出与梯度 dtype
-   均与输入一致。
+4. `stage5_final_gate.sh` 是 **historical Stage 5 development/freeze gate**（用于在 Stage 5 开发开始
+   时确认 Stage 4 已冻结）。它的第一段检查是一条历史性的 remote-head 断言：
+
+   ```text
+   origin/feat/global-max-pool-scattermax-zyg == a586e48    (Stage 4 freeze)
+   ```
+
+   Stage 5 正式完成并 push 到 `c15423e` 之后，该断言按设计不再成立，因此：
+
+   ```text
+   post-freeze execution may report PARTIAL/FAIL only because its historical
+   remote-head assertion expects the pre-Stage-5 value a586e48.
+   This does not indicate a correctness regression.
+   ```
+
+   该脚本属于 Stage 5 冻结工具，本轮未做修改；Reviewer 应使用 §10 的 A–E 命令进行验证。
+
+5. §10 的示例与推荐命令均已在真实环境执行验证：
+
+   ```text
+   A.1 smoke (fp32)        : out = [[3.0, 5.0], [4.0, 6.0]]，x.grad 正常生成
+   A.2 dtype               : float32 / float16 / bfloat16 -> out.dtype == x.grad.dtype == 输入 dtype
+   A.3 tie                 : out = [[3.0]]，grad = 0.5 / 0.5
+   A.4 zero-max            : out = [[0.0]]，grad = 1/3, 1/3（fp32: 0.3333333432674408）
+   B correctness matrix    : exit 0，TOTAL 62 PASS 62 FAIL 0
+   C real PyG E2E          : exit 0，TOTAL 25 PASS 25 FAIL 0，original_calls=0
+   D FP32 regression       : exit 0，13/13 gates PASS（script_failed=0 gate_failed=0）
+   E profiler verification : exit 0，forward-on-device 8、no-AI_CPU 8、no-scatter_reduce 8
+   ```
