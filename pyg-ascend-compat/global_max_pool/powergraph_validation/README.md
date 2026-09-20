@@ -35,6 +35,37 @@ PyG Ascend `global_max_pool` 实现，在
 | compat 路径 Host fallback（主机侧回退） | NONE |
 | compat 路径 `aten::scatter_reduce` | 0（未被调用） |
 
+---
+
+## 交付材料导航
+
+下表列出本验证交付的全部材料。**内容**一列可直接点击跳转（GitHub 页面支持）。
+
+| 内容 | 位置 | 用途 |
+|---|---|---|
+| [本页：PowerGraph 测试入口](README.md) | `powergraph_validation/README.md` | 快速了解测试目的、结论和复现方式 |
+| [完整验证报告](POWERGRAPH_GLOBAL_MAX_POOL_VALIDATION.md) | `powergraph_validation/POWERGRAPH_GLOBAL_MAX_POOL_VALIDATION.md` | 查看测试环境、测试矩阵、正确性、Profiler、复现过程和完整结论 |
+| [性能证据报告](POWERGRAPH_GLOBAL_MAX_POOL_PERFORMANCE_EVIDENCE.md) | `powergraph_validation/POWERGRAPH_GLOBAL_MAX_POOL_PERFORMANCE_EVIDENCE.md` | 查看各数据集、batch、dtype 的性能数据和性能分析 |
+| [数据集说明](DATASET.md) | `powergraph_validation/DATASET.md` | 查看 PowerGraph 数据来源、版本、MD5、下载方式、解压方式和目录结构 |
+| [测试脚本](scripts/) | `powergraph_validation/scripts/` | 查看 forward、backward、Profiler 和一键验证脚本 |
+| [测试结果](results/) | `powergraph_validation/results/` | 查看实际生成的 CSV / JSON / per-iteration 数据 |
+| [Profiler 证据](evidence/profiler/) | `powergraph_validation/evidence/profiler/` | 查看 `ScatterMaxV1 -> AI_VECTOR_CORE`、AI_CPU=0、无 fallback 的设备侧证据 |
+| [环境记录](evidence/environment/) | `powergraph_validation/evidence/environment/` | 查看测试前后的 Python package 环境记录 |
+| [算子总交付说明](../README_DELIVERY.md) | `../README_DELIVERY.md` | 查看 `global_max_pool` 算子的整体开发、功能、版本和交付说明 |
+
+如果只想快速确认测试是否通过，阅读本 README 即可；如果需要审核测试方法和完整证据，
+请继续查看《完整验证报告》；如果需要复现实测，请从「数据集说明」和「测试脚本」开始。
+
+### 推荐阅读顺序
+
+```text
+1. README.md                                  本页：结论与导航
+2. POWERGRAPH_GLOBAL_MAX_POOL_VALIDATION.md   完整验证报告（方法与证据）
+3. DATASET.md                                  数据集来源与获取方式
+4. scripts/                                    测试脚本与一键验证
+5. results/ 与 evidence/                        原始数据与 Profiler 证据
+```
+
 ## 2. 测试了哪些数据集
 
 | 数据集 | graph 数 | 每图节点数 | F | 每图边数（有向） |
