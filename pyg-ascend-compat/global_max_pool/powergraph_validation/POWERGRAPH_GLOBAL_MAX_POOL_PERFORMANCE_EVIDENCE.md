@@ -1,17 +1,20 @@
-# POWERGRAPH GLOBAL_MAX_POOL PERFORMANCE — EVIDENCE
+# PowerGraph `global_max_pool` 性能证据
 
-Independent single-operator performance benchmark of the **frozen** PyG Ascend
-`global_max_pool` implementation on **real PowerGraph power-grid graph data**.
-No operator development, no GNN training, no repository modification.
+> **说明**：本文档是机器生成报告
+> （`scripts/analysis/make_report.py` 的英文原版输出）的**中文版本**；
+> 所有数据来自原始 CSV / JSON / Profiler 证据，数值未做任何改动。
 
-## 1. Environment
+针对**已冻结（frozen）**的 PyG Ascend `global_max_pool` 实现，在**真实 PowerGraph
+电力图数据**上做的单算子独立性能测试。不做算子开发、不训练 GNN、不修改仓库。
 
-| item | value |
+## 1. 测试环境
+
+| 项目 | 值 |
 |---|---|
-| server | `S900K3-47` |
-| container | `wio-pyg-cann851-pyg280` (container hostname `caef109ccb29`) |
-| platform | `Linux-5.15.0-25-generic-aarch64-with-glibc2.35` |
-| accelerators | 8 x Ascend 910B3, benchmark pinned via `ASCEND_RT_VISIBLE_DEVICES=0` |
+| 服务器 | `S900K3-47` |
+| 容器 | `wio-pyg-cann851-pyg280`（容器 hostname `caef109ccb29`） |
+| 平台 | `Linux-5.15.0-25-generic-aarch64-with-glibc2.35` |
+| 加速卡 | 8 × Ascend 910B3，测试通过 `ASCEND_RT_VISIBLE_DEVICES=0` 固定到单卡 |
 | python | 3.11.14 |
 | torch | 2.9.0+cpu |
 | torch_npu | 2.9.0 |
@@ -20,22 +23,21 @@ No operator development, no GNN training, no repository modification.
 | device | Ascend910B3 |
 | CANN | 8.5.1 (`/usr/local/Ascend/cann-8.5.1`) |
 
-Environment changes made for this benchmark (recorded before/after in
-`logs/pip_freeze_before.txt` and `logs/pip_freeze_after.txt`):
+本次性能测试对环境做的改动（前后完整 package 列表记录在
+`logs/pip_freeze_before.txt` 与 `logs/pip_freeze_after.txt`）：
 
 ```
 h5py==3.16.0      (new)
 mat73==0.65       (new)
 ```
 
-`torch 2.9.0+cpu`, `torch_npu 2.9.0`, `torch_geometric 2.8.0.post1` and
-`numpy 2.4.6` were **not touched**. The PowerGraph `requirements.txt` was **not**
-installed. `sklearn.model_selection.train_test_split` and `utils.gen_utils`
-(unused by the `PowerGrid` code path but imported at module scope) are satisfied
-by in-process stubs so that neither scikit-learn/scipy nor pandas had to be
-installed; both stubs raise loudly if actually called.
+`torch 2.9.0+cpu`、`torch_npu 2.9.0`、`torch_geometric 2.8.0.post1` 与
+`numpy 2.4.6` **均未改动**。PowerGraph 的 `requirements.txt` **没有安装**。
+`sklearn.model_selection.train_test_split` 与 `utils.gen_utils` 这两个在
+`PowerGrid` 代码路径中并未使用、但在模块 import 阶段被引用的符号，用进程内 stub 满足，
+因此无需安装 scikit-learn / scipy / pandas；两个 stub 被真正调用时会立即报错。
 
-## 2. Frozen operator provenance
+## 2. 被测算子来源（frozen）
 
 ```
 repo=https://github.com/wio1997/nanwang
@@ -71,12 +73,11 @@ efad8b7293e7e1ae701474eb0984733a2624eeaed4ceee97fc4bc615c8c5e9d1  /root/zyg/buil
 f83769d63eb111cf8c7b331f2aae3e80e0dd1279a4583bfbf9cb2c51eaf5c519  /root/zyg/build/stage2_ext/scattermaxv1_bridge.so
 ```
 
-The only difference between the frozen operator commit and the final docs HEAD
-is `pyg-ascend-compat/global_max_pool/README_DELIVERY.md`; the operator, adapter,
-autograd and dtype sources are byte-identical, and the checked-out worktree is
-clean.
+算子冻结 commit 与最终文档 HEAD 的唯一差异是
+`pyg-ascend-compat/global_max_pool/README_DELIVERY.md`；operator、adapter、autograd
+与 dtype 源码逐字节一致，实测 checkout 的工作区为 clean。
 
-The benchmark always imports in this order:
+性能测试脚本始终保持以下 import 顺序：
 
 ```python
 import pyg_ascend_compat
@@ -84,91 +85,84 @@ pyg_ascend_compat.enable()
 from torch_geometric.nn import global_max_pool
 ```
 
-## 3. PowerGraph data provenance
+## 3. PowerGraph 数据来源
 
-| item | value |
+| 项目 | 值 |
 |---|---|
-| repository | `https://github.com/PowerGraph-Datasets/PowerGraph-Graph` |
-| commit used (read-only clone) | `eb100a2fd836bb8b6bd2d0b799af9c615eac8cb6` |
-| file used | fetches exactly what README links: figshare article `22820534`, file id `46619158` (`dataset_cascades.zip`, v3) |
-| download bytes / md5 | 61,628,977 / `70b677416d2f377ccfee9f51d8369867` |
-| uncompressed | 2,958,249,040 bytes (2.75 GiB) |
-| also fetched | file id `50083479` (v5 `dataset_cascades.zip`, md5 verified `d4d144b9e720a760e1e077a31f34802d`) — same files, same sizes, only an extra top-level directory |
+| 仓库 | `https://github.com/PowerGraph-Datasets/PowerGraph-Graph` |
+| 使用的 commit（只读 clone） | `eb100a2fd836bb8b6bd2d0b799af9c615eac8cb6` |
+| 使用的文件 | 恰好是 README 链接的对象：figshare article `22820534`，file id `46619158`（`dataset_cascades.zip`，v3） |
+| 下载大小 / md5 | 61,628,977 / `70b677416d2f377ccfee9f51d8369867` |
+| 解压后大小 | 2,958,249,040 bytes（2.75 GiB） |
+| 另做事后核对 | file id `50083479`（v5 `dataset_cascades.zip`，md5 校验值 `d4d144b9e720a760e1e077a31f34802d`）—— 文件内容与大小一致，仅多一层顶层目录 |
 
-In the **original validation environment** figshare.com returned HTTP 403 for
-every path (article page, API and downloader alike, IPv4 and IPv6). The data was
-therefore obtained by retrieving figshare's presigned S3 redirect through a
-public HTTP proxy and then downloading the payload **directly from
-`s3-eu-west-1.amazonaws.com/pfigshare-u-files/...`**; no proxy was used for the
-payload transfer. See `DATASET.md` for the portable download procedure used by
-the packaged scripts (`scripts/fetch_powergraph_data.sh`), which prefers the
-official figshare URL and verifies the checksum. The dataset is stored under
-`POWERGRAPH_DATA_ROOT` (default `<package>/data`) and is never committed to git.
+在**原始验证环境**中，figshare.com 对所有路径都返回 HTTP 403（article 页面、API 与
+downloader 均是，IPv4 与 IPv6 相同）。因此数据获取方式是：通过公共 HTTP proxy 取得
+figshare 的 presigned S3 重定向，再从
+`s3-eu-west-1.amazonaws.com/pfigshare-u-files/...` **直接下载 payload** —— payload
+传输本身不经过 proxy。打包脚本使用的可移植下载流程见 `DATASET.md`
+（`scripts/fetch_powergraph_data.sh`：优先官方 figshare 地址，并校验 checksum）。
+数据集存放于 `POWERGRAPH_DATA_ROOT`（默认 `<package>/data`），不随 git 提交。
 
-All four datasets are present and were processed by the **unmodified**
-`PowerGrid` `InMemoryDataset` loader under PyG 2.8.0.post1.
+四个数据集全部可用，并且均由**未修改的** `PowerGrid` `InMemoryDataset` loader 在
+PyG 2.8.0.post1 下处理。
 
-## 4. Dataset availability and workload statistics
+## 4. 数据集可用性与 workload 统计
 
-Raw `.mat` audit (before PyG processing):
+原始 `.mat` 审计（PyG 处理之前）：
 
-| dataset | graphs | nodes/graph (raw) | branches defined/graph | loader x shape | loader x dtype | edge_index edges/graph min | edge_index edges/graph max | edge_index edges/graph mean | tripped branches/graph min | tripped branches/graph max |
+| 数据集 | graph 数 | 每图节点数（raw） | 每图定义的支路数 | loader x shape | loader x dtype | edge_index 每图边数 min | edge_index 每图边数 max | edge_index 每图边数 mean | 每图被切除支路 min | 每图被切除支路 max |
 |---|---|---|---|---|---|---|---|---|---|---|
 | ieee24 | 21500 | 24 | 38 | [24, 3] | torch.float32 | 68 | 74 | 73.76 | 1 | 4 |
 | ieee39 | 28000 | 39 | 46 | [39, 3] | torch.float32 | 86 | 90 | 89.64 | 1 | 3 |
 | ieee118 | 122500 | 118 | 186 | [118, 3] | torch.float32 | 362 | 370 | 369.44 | 1 | 5 |
 | uk | 64000 | 29 | 99 | [29, 3] | torch.float32 | 190 | 196 | 195.53 | 1 | 4 |
 
-Processed-dataset workload (exact, from `dataset.slices`):
+处理后的数据集 workload（精确值，取自 `dataset.slices`）：
 
-| dataset | graphs | F | nodes/graph min | nodes/graph max | nodes/graph mean | edges/graph min | edges/graph max | edges/graph mean | nodes/graph constant | distinct edge counts |
+| 数据集 | graph 数 | F | 每图节点数 min | 每图节点数 max | 每图节点数 mean | 每图边数 min | 每图边数 max | 每图边数 mean | 每图节点数是否恒定 | 不同边数的取值个数 |
 |---|---|---|---|---|---|---|---|---|---|---|
 | ieee24 | 21500 | 3 | 24 | 24 | 24.00 | 68 | 74 | 73.76 | True | 4 |
 | ieee39 | 28000 | 3 | 39 | 39 | 39.00 | 86 | 90 | 89.64 | True | 3 |
 | ieee118 | 122500 | 3 | 118 | 118 | 118.00 | 362 | 370 | 369.44 | True | 5 |
 | uk | 64000 | 3 | 29 | 29 | 29.00 | 190 | 196 | 195.53 | True | 4 |
 
-Nodes per graph are **fixed per dataset** (24 / 39 / 118 / 29); only the number
-of *tripped branches* varies per graph, which changes `edge_index` /
-`edge_attr` size between 68-74, 86-90, 362-370 and 190-196 directed edges
-respectively. Node features are always `x: float32 [N, 3]` (net active power,
-net apparent power, voltage magnitude), so `F = 3` for every dataset — the
-column count is much smaller than the node axis, which matters for interpreting
-the numbers below.
+每个数据集的每图节点数是**固定的**（24 / 39 / 118 / 29）；变化的只是每图**被切除支路
+（tripped branches）** 的数量，它使 `edge_index` / `edge_attr` 的规模分别落在
+68–74、86–90、362–370、190–196 条有向边之间。节点特征恒为 `x: float32 [N, 3]`
+（net active power、net apparent power、voltage magnitude），因此所有数据集都是
+`F = 3` —— feature 维度远小于节点维度，这一点对理解下面的数据很关键。
 
-## 5. Benchmark methodology
+## 5. 性能测试方法
 
-* Input is a **real PyG DataLoader batch** (`torch_geometric.loader.DataLoader`,
-  `shuffle=False`, first batch) of the requested size; only `batch.x` and
-  `batch.batch` are moved to the NPU. No GNN convolution, no Linear, no
-  optimizer, no training.
+* 输入是**真实 PyG DataLoader batch**（`torch_geometric.loader.DataLoader`，
+  `shuffle=False`，取第一个 batch），只把 `batch.x` 与
+  `batch.batch` 搬到 NPU。不做 GNN 卷积、不做 Linear、不做优化器、不做训练。
 * `out = global_max_pool(x, batch_index)` inside `torch.no_grad()`.
-* warmup = 30, measurement iterations = 200.
-* `torch.npu.synchronize()` is called after warmup and again after the last
-  launch; **no timer is taken around unsynchronised device work**.
-* Primary metric: per-iteration `torch.npu.Event(enable_timing=True)` pairs,
-  giving device-side per-op durations; mean/P50/P95/P99 are computed from those
-  per-iteration samples (kept in `*_per_iter_*.csv`).
-* Secondary metric: a fully synchronised loop (`sync_*` columns) that calls
-  `torch.npu.synchronize()` before and after every single call, i.e. it also
-  contains host launch overhead.
-* `host_total_us` is the batch-timer cross-check (synchronise, t0, N launches,
-  synchronise, t1) divided by N.
+* warmup（预热）= 30 次，measurement iterations（测量迭代）= 200 次。
+* warmup 之后以及最后一次 launch 之后都会调用 `torch.npu.synchronize()`；
+  **不会在未同步的 device 工作周围取时间**。
+* 主指标：每次迭代一对 `torch.npu.Event(enable_timing=True)`，得到 device 侧单次
+  执行时长；mean / P50 / P95 / P99 由这些逐次迭代样本计算
+  （保存在 `*_per_iter_*.csv`）。
+* 次指标：完全同步的循环（`sync_*` 列），每次调用前后都调用
+  `torch.npu.synchronize()`，因此还包含 host 侧 launch 开销。
+* `host_total_us` 是批量计时器的交叉校验（synchronise、t0、N 次 launch、
+  synchronise、t1）再除以 N。
 
-### 5.1 Important measurement caveat
+### 5.1 重要测量说明
 
-The frozen Stage-2 adapter performs a **mandatory device-to-host synchronisation
-on every call** (`torch.stack((batch.min(), batch.max())).cpu().tolist()` for
-index-range validation, plus `size` inference) and issues roughly nine auxiliary
-NPU operations (`to(int32)`, `F.pad`, `torch.full`, `torch.empty`, the
-ScatterMaxV1 launch, `zeros`+`scatter_` occupancy, `masked_fill_`, cropped
-`contiguous`). Consequently the packed-launch loop cannot actually queue work:
-the measured latency **is** the true per-call latency of the frozen operator,
-not a pipelined throughput figure. Both loops are reported so this is visible.
+冻结的 Stage-2 adapter 在**每次调用中都会做一次强制的 device→host 同步**
+（用于索引范围校验的 `torch.stack((batch.min(), batch.max())).cpu().tolist()`，以及
+`size` 推导），并额外发起约 9 个辅助 NPU 操作（`to(int32)`、`F.pad`、`torch.full`、
+`torch.empty`、ScatterMaxV1 launch、`zeros`+`scatter_` 占位、`masked_fill_`、
+裁剪用的 `contiguous`）。因此 back-to-back launch 循环实际上无法把调用排队：
+量到的**就是冻结算子的真实单次调用延迟**，而不是流水线吞吐。两种循环都报告出来，
+以便读者看清这一点。
 
-## 6. FP32 performance
+## 6. FP32 性能
 
-| dataset | batch | graphs | nodes | F | dtype | mean_us | p50_us | p95_us | p99_us | graphs_per_sec | nodes_per_sec |
+| 数据集 | batch | graphs | nodes | F | dtype | mean_us | p50_us | p95_us | p99_us | graphs_per_sec | nodes_per_sec |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | ieee24 | 1 | 1 | 24 | 3 | fp32 | 914.24 | 925.71 | 970.82 | 995.26 | 1,093.8 | 26,251.3 |
 | ieee24 | 8 | 8 | 192 | 3 | fp32 | 889.07 | 888.51 | 939.03 | 950.91 | 8,998.2 | 215,955.7 |
@@ -187,12 +181,12 @@ not a pipelined throughput figure. Both loops are reported so this is visible.
 | uk | 32 | 32 | 928 | 3 | fp32 | 865.91 | 866.69 | 903.54 | 932.28 | 36,955.4 | 1,071,706 |
 | uk | 128 | 128 | 3712 | 3 | fp32 | 858.09 | 854.94 | 897.61 | 918.97 | 149,169.2 | 4,325,906 |
 
-## 7. FP16 performance
+## 7. FP16 性能
 
-FP16 is **not** a native kernel: it is a device cast chain
-`fp16 -> fp32 -> ScatterMaxV1 -> fp16`.
+FP16 **不是** native kernel：它是 device 上的 cast 链
+`fp16 -> fp32 -> ScatterMaxV1 -> fp16`。
 
-| dataset | batch | graphs | nodes | F | dtype | mean_us | p50_us | p95_us | p99_us | graphs_per_sec | nodes_per_sec |
+| 数据集 | batch | graphs | nodes | F | dtype | mean_us | p50_us | p95_us | p99_us | graphs_per_sec | nodes_per_sec |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | ieee24 | 1 | 1 | 24 | 3 | fp16 | 916.17 | 913.29 | 950.54 | 974.05 | 1,091.5 | 26,196.0 |
 | ieee24 | 8 | 8 | 192 | 3 | fp16 | 946.50 | 943.50 | 985.25 | 1,051.2 | 8,452.2 | 202,851.6 |
@@ -211,9 +205,9 @@ FP16 is **not** a native kernel: it is a device cast chain
 | uk | 32 | 32 | 928 | 3 | fp16 | 924.76 | 923.60 | 960.02 | 989.04 | 34,603.4 | 1,003,499 |
 | uk | 128 | 128 | 3712 | 3 | fp16 | 912.01 | 910.41 | 949.17 | 994.67 | 140,348.9 | 4,070,118 |
 
-## 8. BF16 performance
+## 8. BF16 性能
 
-BF16 is likewise `bf16 -> fp32 -> ScatterMaxV1 -> bf16`.
+BF16 同样是 `bf16 -> fp32 -> ScatterMaxV1 -> bf16` 的 cast 链。
 
 | dataset | batch | graphs | nodes | F | dtype | mean_us | p50_us | p95_us | p99_us | graphs_per_sec | nodes_per_sec |
 |---|---|---|---|---|---|---|---|---|---|---|---|
@@ -234,12 +228,12 @@ BF16 is likewise `bf16 -> fp32 -> ScatterMaxV1 -> bf16`.
 | uk | 32 | 32 | 928 | 3 | bf16 | 932.75 | 927.23 | 990.26 | 1,002.5 | 34,307.0 | 994,904.1 |
 | uk | 128 | 128 | 3712 | 3 | bf16 | 906.05 | 901.52 | 944.82 | 963.88 | 141,272.0 | 4,096,888 |
 
-## 9. Forward + first-order backward (independent table)
+## 9. Forward + 一阶 backward（独立表格）
 
-`x.requires_grad_(True); out = global_max_pool(x, batch); out.sum().backward()`,
-with `x.grad = None` cleared every iteration to avoid accumulation. The frozen
-implementation routes FP32 through the Stage-4 tie-gradient `Function` and
-FP16/BF16 through the Stage-5 dtype path. Not mixed with the forward table.
+每轮执行 `x.requires_grad_(True); out = global_max_pool(x, batch);
+out.sum().backward()`，并在每次迭代开始时用 `x.grad = None` 清零以避免梯度累积。
+冻结实现中 FP32 走 Stage-4 的 tie-gradient `Function`，FP16/BF16 走 Stage-5 的 dtype
+路径。本表与 forward 表分开统计，不混合。
 
 | dataset | batch | dtype | mean_us | p50_us | p95_us | p99_us | grad finite | nonzero grads | status |
 |---|---|---|---|---|---|---|---|---|---|
@@ -292,22 +286,22 @@ FP16/BF16 through the Stage-5 dtype path. Not mixed with the forward table.
 | uk | 128 | fp16 | 2,340.5 | 2,015.4 | 3,051.4 | 3,202.3 | True | 1664 | ok |
 | uk | 128 | fp32 | 2,127.3 | 1,857.9 | 2,765.6 | 2,849.0 | True | 384 | ok |
 
-## 10. Original PyG fallback comparison
+## 10. 与原始 PyG fallback（主机侧回退）路径的对照
 
-The upstream implementation is captured *before* `pyg_ascend_compat.enable()` and
-called with the identical tensor/batch. torch_npu reports:
+上游实现是在 `pyg_ascend_compat.enable()` **之前**捕获的，用完全相同的 tensor / batch
+调用。torch_npu 会打印：
 
 ```
 CAUTION: The operator 'aten::scatter_reduce.two_out' is not currently supported
 on the NPU backend and will fall back to run on the CPU.
 ```
 
-so the baseline executes on the **host CPU** with device copies, not on the
-Ascend vector core. `speedup = original_mean_us / compat_mean_us`.
+也就是说，对照组实际执行在 **host CPU** 上（伴随 device 拷贝），而不是在 Ascend
+vector core 上。`speedup = original_mean_us / compat_mean_us`。
 
 ### 10.1 FP32
 
-| dataset | batch | compat_mean_us | original_pyg_mean_us | speedup | baseline execution location |
+| 数据集 | batch | compat_mean_us | original_pyg_mean_us | speedup | 对照路径实际执行位置 |
 |---|---|---|---|---|---|
 | ieee24 | 1 | 914.24 | 779.20 | 0.85x | host CPU (torch_npu fallback) |
 | ieee24 | 8 | 889.07 | 801.80 | 0.90x | host CPU (torch_npu fallback) |
@@ -328,7 +322,7 @@ Ascend vector core. `speedup = original_mean_us / compat_mean_us`.
 
 ### 10.2 FP16
 
-| dataset | batch | compat_mean_us | original_pyg_mean_us | speedup | baseline execution location |
+| 数据集 | batch | compat_mean_us | original_pyg_mean_us | speedup | 对照路径实际执行位置 |
 |---|---|---|---|---|---|
 | ieee24 | 1 | 916.17 | 779.28 | 0.85x | host CPU (torch_npu fallback) |
 | ieee24 | 8 | 946.50 | 795.34 | 0.84x | host CPU (torch_npu fallback) |
@@ -349,7 +343,7 @@ Ascend vector core. `speedup = original_mean_us / compat_mean_us`.
 
 ### 10.3 BF16
 
-| dataset | batch | compat_mean_us | original_pyg_mean_us | speedup | baseline execution location |
+| 数据集 | batch | compat_mean_us | original_pyg_mean_us | speedup | 对照路径实际执行位置 |
 |---|---|---|---|---|---|
 | ieee24 | 1 | 955.64 | 791.25 | 0.83x | host CPU (torch_npu fallback) |
 | ieee24 | 8 | 956.27 | 809.94 | 0.85x | host CPU (torch_npu fallback) |
@@ -368,11 +362,12 @@ Ascend vector core. `speedup = original_mean_us / compat_mean_us`.
 | uk | 32 | 932.75 | 797.12 | 0.85x | host CPU (torch_npu fallback) |
 | uk | 128 | 906.05 | 874.54 | 0.97x | host CPU (torch_npu fallback) |
 
-### 10.4 Baseline stability
+### 10.4 对照路径的稳定性
 
-Repeatability probe of the original-PyG host-CPU fallback (5 independent measurement windows of 10 warmup + 50 iterations each, same process):
+对原始 PyG host CPU fallback 路径做重复性探测（同一进程内 5 个独立测量窗口，
+每个窗口 10 次 warmup + 50 次迭代）：
 
-| case | nodes | repeat means (us) | min_us | median_us | max_us | within-process spread | host loadavg 1/5/15m |
+| case | nodes | 各次重复的 mean (us) | min_us | median_us | max_us | 进程内波动倍数 | host loadavg 1/5/15m |
 |---|---|---|---|---|---|---|---|
 | ieee24 b128 | 3072 | 968, 946, 963, 953, 971 | 946.49 | 962.87 | 971.13 | 1.03x | 26.2/29.9/28.2 |
 | ieee39 b128 | 4992 | 1,123, 1,045, 1,055, 1,079, 1,103 | 1,044.9 | 1,079.1 | 1,123.0 | 1.07x | 26.2/29.9/28.2 |
@@ -381,22 +376,20 @@ Repeatability probe of the original-PyG host-CPU fallback (5 independent measure
 | ieee118 b128 | 15104 | 30,264, 29,578, 29,415, 30,385, 28,900 | 28,899.7 | 29,578.4 | 30,385.2 | 1.05x | 57.6/36.6/30.4 |
 | uk b128 | 3712 | 973, 967, 972, 1,145, 982 | 966.80 | 973.49 | 1,144.7 | 1.18x | 57.6/36.6/30.4 |
 
-Two behaviours are visible:
+可以看到两种现象：
 
-* most cells are repeatable within ~1.0-1.2x, so their ratios are meaningful;
-* `ieee118` batch=128 (15,104 nodes) is a genuine threshold effect rather than
-  sampling noise: the host-CPU fallback costs ~29-30 ms there versus 1.23 ms at
-  batch=64 (7,552 nodes), i.e. ~24x more for 2x the nodes. Across separate
-  processes the very same cell measured 4.7 ms, 27.2 ms and 35.3 ms, so its
-  absolute value is **not** a stable number; only the qualitative conclusion
-  (the upstream fallback degrades catastrophically on this cell while the
-  Ascend path stays ~1.1-1.3 ms) is trustworthy.
+* 大多数组合在 ~1.0–1.2x 之内可复现，因此它们的比值是有意义的；
+* `ieee118` batch=128（15,104 nodes）是真实的**阈值效应**，而不是采样噪声：
+  host CPU fallback 在该点约 29–30 ms，而 batch=64（7,552 nodes）只有 1.23 ms，
+  即节点数增加 2 倍、耗时增加约 24 倍。跨进程来看，同一个组合分别测到
+  4.7 ms、27.2 ms、35.3 ms，因此它的绝对值**不是一个稳定数字**；可以采信的只有定性
+  结论：上游 fallback 在这个组合上出现严重退化，而 Ascend 路径稳定在 ~1.1–1.3 ms。
 
-## 11. Where the latency actually goes
+## 11. latency 的实际构成
 
-Measured on real `ieee24` batch=128 (128 graphs, 3072 nodes, F=3), warmup=30, iters=200.
+在真实 `ieee24` batch=128（128 graphs、3072 nodes、F=3）上测得，warmup=30、iters=200。
 
-| measurement | device-event mean_us | p50_us | p95_us | host mean_us |
+| 测量项 | device event mean_us | p50_us | p95_us | host mean_us |
 |---|---|---|---|---|
 | A_sync_empty_queue | 33.07 | 32.73 | 35.76 | 33.07 |
 | B_trivial_op_sync_per_iter | 101.62 | 96.76 | 123.16 | 101.62 |
@@ -405,9 +398,10 @@ Measured on real `ieee24` batch=128 (128 graphs, 3072 nodes, F=3), warmup=30, it
 | D_raw_bridge_kernel_only | 111.79 | 110.01 | 133.81 | 157.30 |
 | E_original_pyg_fallback | 853.28 | 849.57 | 905.13 | 904.38 |
 
-Per-step decomposition of the frozen adapter's per-call device work (each step timed with a full synchronise immediately before and after, so every row also carries the ~100 us launch+sync floor and the rows do not sum to the full-op latency):
+冻结 adapter 单次调用中各步骤的分解（每一步都在前后做完整 synchronise，因此每一行都
+还包含约 100 us 的 launch+sync 下限，各行之和并不等于完整算子的 latency）：
 
-| step | mean_us | p50_us | p95_us |
+| 步骤 | mean_us | p50_us | p95_us |
 |---|---|---|---|
 | 00_full_op_compat_call | 800.09 | 801.93 | 842.16 |
 | 01_batch_minmax_to_host | 237.95 | 236.83 | 251.64 |
@@ -421,9 +415,9 @@ Per-step decomposition of the frozen adapter's per-call device work (each step t
 | 09_crop_contiguous | 103.98 | 103.18 | 109.87 |
 
 
-## 12. Profiler evidence (msprof --ai-core=on)
+## 12. Profiler 验证证据（msprof --ai-core=on）
 
-| case | path | ScatterMaxV1 tasks | core type | kernel avg_us | AI_CPU tasks | aten::scatter_reduce occurrences | gate |
+| case | path | ScatterMaxV1 任务数 | 执行核心类型 | kernel 平均耗时 us | AI_CPU 任务数 | aten::scatter_reduce 出现次数 | gate |
 |---|---|---|---|---|---|---|---|
 | ieee118_b128_fp32 | compat_ascend | 8 | AI_VECTOR_CORE | 119.88 | 0 | 0 | PASS |
 | ieee24_b128_bf16 | compat_ascend | 8 | AI_VECTOR_CORE | 25.46 | 0 | 0 | PASS |
@@ -432,7 +426,7 @@ Per-step decomposition of the frozen adapter's per-call device work (each step t
 | ieee24_b128_fp32_origpyg | original_pyg | 0 | - |  | 0 | 0 | - |
 | uk_b128_fp32 | compat_ascend | 8 | AI_VECTOR_CORE | 32.82 | 0 | 0 | PASS |
 
-Compat dispatch counters (Python-level proof the Ascend path was entered):
+compat dispatch counter（Python 层证据，证明进入的是 Ascend 路径）：
 
 * `ieee118_b128_fp32` (compat_ascend, ieee118 batch=128 dtype=fp32): compat counters total_calls=8 ascend_calls=8 original_calls=0 dtype16_forward_calls=0 non_fp32_passthrough=0; device kernels=['ScatterMaxV1_7d55161965c898907fdb3028d01c7c76_0']
 * `ieee24_b128_bf16` (compat_ascend, ieee24 batch=128 dtype=bf16): compat counters total_calls=8 ascend_calls=8 original_calls=0 dtype16_forward_calls=8 non_fp32_passthrough=0; device kernels=['ScatterMaxV1_7d55161965c898907fdb3028d01c7c76_0']
@@ -441,19 +435,18 @@ Compat dispatch counters (Python-level proof the Ascend path was entered):
 * `ieee24_b128_fp32_origpyg` (original_pyg, ieee24 batch=128 dtype=fp32): compat counters total_calls=0 ascend_calls=0 original_calls=0 dtype16_forward_calls=0 non_fp32_passthrough=0; device kernels=[]
 * `uk_b128_fp32` (compat_ascend, uk batch=128 dtype=fp32): compat counters total_calls=8 ascend_calls=8 original_calls=0 dtype16_forward_calls=0 non_fp32_passthrough=0; device kernels=['ScatterMaxV1_7d55161965c898907fdb3028d01c7c76_0']
 
-## 13. Host fallback / AI_CPU / scatter_reduce audit
+## 13. Host fallback / AI_CPU / scatter_reduce 审计
 
-For every `compat_ascend` profiled case the raw msprof log contained **none** of
-`npu_cpu_fallback`, `fall back to run on the CPU`, `507035`, `507011`,
-`out of range`, `vector core exception`, `aicore exception`, `AIV exception`;
-`op_summary_*.csv` contains no task whose `Task Type` mentions CPU; and
-`api_statistic_*.csv` contains zero `aten::scatter_reduce` entries. The installed
-delivery OPP's kernel hash
-`ScatterMaxV1_7d55161965c898907fdb3028d01c7c76_0` is the one that executes.
+对每一个 `compat_ascend` profiled case，原始 msprof log 中**都不包含**
+`npu_cpu_fallback`、`fall back to run on the CPU`、`507035`、`507011`、
+`out of range`、`vector core exception`、`aicore exception`、`AIV exception` 中的任何
+一项；`op_summary_*.csv` 中没有任何 `Task Type` 含 CPU 的任务；
+`api_statistic_*.csv` 中 `aten::scatter_reduce` 条目为 0。实际执行的是已安装正式
+OPP 的 kernel hash `ScatterMaxV1_7d55161965c898907fdb3028d01c7c76_0`。
 
-## 14. Correctness sanity
+## 14. 正确性检查
 
-| dataset | batch | dtype | out shape | shape ok | NaN | Inf | max abs diff vs CPU oracle | max rel diff | rtol/atol | tolerance mismatches | oracle ok |
+| 数据集 | batch | dtype | 输出 shape | shape 正确 | NaN | Inf | 与 CPU oracle 的最大绝对偏差 | 最大相对偏差 | rtol/atol | 容差外元素数 | oracle 通过 |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | ieee24 | 1 | fp32 | (1, 3) | True | 0 | 0 | 0.000000 | 0.000000 | 1e-05/1e-06 | 0 | True |
 | ieee24 | 1 | fp16 | (1, 3) | True | 0 | 0 | 0.000183 | 0.000282 | 0.002/0.01 | 0 | True |
@@ -504,108 +497,95 @@ delivery OPP's kernel hash
 | uk | 128 | fp16 | (128, 3) | True | 0 | 0 | 0.000067 | 0.000112 | 0.002/0.01 | 0 | True |
 | uk | 128 | bf16 | (128, 3) | True | 0 | 0 | 0.001531 | 0.002103 | 0.02/0.1 | 0 | True |
 
-## 15. Benchmark artefacts
+## 15. 测试产物
 
-Scripts live in this package; see `powergraph_validation/README.md` for the
-authoritative file list.
+脚本随本包一同提供，权威清单见 `powergraph_validation/README.md`。
 
-| script | purpose |
+| 脚本 | 用途 |
 |---|---|
-| `bench_env.sh` | runtime env: custom OPP, frozen adapter/autograd/stage5 paths, bridge, `ASCEND_RT_VISIBLE_DEVICES` |
-| `pg_env.py` | compat bootstrap + sklearn/`utils.gen_utils` shims |
-| `pg_dataset.py` | unmodified `PowerGrid` loader wrapper + `torch.load(weights_only=False)` context |
-| `analysis/phase_a_audit.py` | raw `.mat` audit (graph/node/edge/dtype) |
-| `analysis/phase_a_loader_check.py` | processed-dataset + PyG 2.8 loader verification |
-| `bench_forward.py` | forward benchmark (compat + original PyG) |
-| `bench_backward.py` | forward + first-order backward benchmark |
-| `analysis/probe_overhead.py` | breakdown vs sync floor / trivial op / raw kernel |
-| `analysis/probe_adapter_steps.py` | per-step cost of the frozen adapter's per-call device work |
-| `analysis/probe_baseline_stability.py` | repeatability probe of the original-PyG host-CPU fallback |
-| `analysis/smoke_compat.py` | 3-line import-order + dtype smoke test of the frozen compat path |
-| `profile_app.py` | msprof application for one representative case |
-| `parse_profile.py` | msprof PROF_* parser -> gate JSON |
-| `run_profiles.sh` | profiler driver for the representative cases |
-| `run_validation.sh` | end-to-end driver (syntax check, forward, fwd+bwd, profiler gate) |
-| `fetch_powergraph_data.sh` / `extract_powergraph_data.py` | dataset download + extraction |
-| `analysis/make_report.py` | renders this report |
-| `analysis/make_summaries.py` | derives `performance_summary.csv` / `profiler_summary.csv` |
+| `bench_env.sh` | 运行环境：custom OPP、frozen adapter/autograd/stage5 路径、bridge、`ASCEND_RT_VISIBLE_DEVICES` |
+| `pg_env.py` | compat bootstrap + sklearn / `utils.gen_utils` stub |
+| `pg_dataset.py` | 未修改的 `PowerGrid` loader 封装 + `torch.load(weights_only=False)` 兼容 context |
+| `analysis/phase_a_audit.py` | 原始 `.mat` 审计（graph / node / edge / dtype） |
+| `analysis/phase_a_loader_check.py` | processed 数据集 + PyG 2.8 loader 校验 |
+| `bench_forward.py` | forward 性能测试（compat + 原始 PyG） |
+| `bench_backward.py` | forward + 一阶 backward 性能测试 |
+| `analysis/probe_overhead.py` | latency 分解：同步下限 / trivial op / 裸 kernel |
+| `analysis/probe_adapter_steps.py` | 冻结 adapter 单次调用各步骤的开销 |
+| `analysis/probe_baseline_stability.py` | 原始 PyG host CPU fallback 路径的重复性探测 |
+| `analysis/smoke_compat.py` | 冻结算子 compat 路径的 3 行 import 顺序 + dtype 冒烟测试 |
+| `profile_app.py` | 单个代表 case 的 msprof 应用 |
+| `parse_profile.py` | msprof `PROF_*` 解析 → gate JSON |
+| `run_profiles.sh` | 代表 case 的 Profiler 驱动 |
+| `run_validation.sh` | 端到端驱动（syntax 检查、forward、fwd+bwd、Profiler gate） |
+| `fetch_powergraph_data.sh` / `extract_powergraph_data.py` | 数据集下载 + 解压 |
+| `analysis/make_report.py` | 渲染本报告 |
+| `analysis/make_summaries.py` | 生成 `performance_summary.csv` / `profiler_summary.csv` |
 
-## 16. Raw paths
+## 16. 原始路径
 
-The **original validation environment** used the absolute paths recorded below.
-The packaged scripts use repository-relative defaults instead; each root is
-overridable (`POWERGRAPH_DATA_ROOT`, `POWERGRAPH_RESULTS_ROOT`,
-`POWERGRAPH_PROFILE_ROOT`, `POWERGRAPH_UPSTREAM_DIR`, `GLOBAL_MAX_POOL_OPP`).
+**原始验证环境**使用下面记录的绝对路径。打包后的脚本改用仓库内相对路径默认值，
+每个根目录都可以覆盖（`POWERGRAPH_DATA_ROOT`、`POWERGRAPH_RESULTS_ROOT`、
+`POWERGRAPH_PROFILE_ROOT`、`POWERGRAPH_UPSTREAM_DIR`、`GLOBAL_MAX_POOL_OPP`）。
 
 ```
-original validation env: /root/zyg/powergraph-global-max-pool-bench/   (container)
-original validation env: /data/zyg/powergraph-global-max-pool-bench/   (host mirror)
-package default data    : <package>/data
-package default results : <package>/results
-package default profile : <package>/evidence/profiler
-raw data                : $POWERGRAPH_DATA_ROOT/<ds>/<ds>/raw/
-processed data          : $POWERGRAPH_DATA_ROOT/<ds>/<ds>/processed_b/data.pt
-forward CSV           : results/forward_phaseB_ieee24.csv, results/forward_phaseC.csv
-per-iteration CSV     : results/forward_per_iter_*.csv
-fwd+bwd CSV           : results/forward_backward_*.csv
-loader check JSON     : results/phase_a_loader.json, results/phase_a_loader_rest.json
-workload JSON         : results/forward_*_workload.json, results/phase_a_raw_audit.json
-overhead JSON         : results/overhead_breakdown.json, results/adapter_step_breakdown.json
-baseline stability    : results/baseline_stability.json
-provenance            : results/frozen_provenance.txt
-download checksums    : data_download/MD5SUMS.txt
-logs                  : logs/*.log, logs/pip_freeze_before.txt, logs/pip_freeze_after.txt
-profiler              : profiler/<case>/PROF_*/mindstudio_profiler_output/, results/profiler_summary.txt
+原始验证环境（容器） : /root/zyg/powergraph-global-max-pool-bench/
+原始验证环境（host）  : /data/zyg/powergraph-global-max-pool-bench/
+包内默认 data 根       : <package>/data
+包内默认 results 根    : <package>/results
+包内默认 Profiler 根   : <package>/profiler_runs
+原始数据               : $POWERGRAPH_DATA_ROOT/<ds>/<ds>/raw/
+processed 数据         : $POWERGRAPH_DATA_ROOT/<ds>/<ds>/processed_b/data.pt
+forward CSV            : results/forward_phaseB_ieee24.csv, results/forward_phaseC.csv
+逐次迭代 CSV           : results/forward_per_iter_*.csv
+forward+backward CSV   : results/forward_backward_*.csv
+loader 校验 JSON       : results/phase_a_loader.json, results/phase_a_loader_rest.json
+workload JSON          : results/forward_*_workload.json, results/phase_a_raw_audit.json
+开销分解 JSON          : results/overhead_breakdown.json, results/adapter_step_breakdown.json
+对照路径稳定性         : results/baseline_stability.json
+来源与 sha256          : results/frozen_provenance.txt
+下载校验和             : data_download/MD5SUMS.txt
+日志                   : logs/*.log, logs/pip_freeze_before.txt, logs/pip_freeze_after.txt
+Profiler               : profiler/<case>/PROF_*/mindstudio_profiler_output/, results/profiler_summary.txt
 ```
 
-## 17. Limitations
+## 17. 已知限制
 
-* `F = 3` for every PowerGraph graph-level dataset, and 24-118 nodes per graph;
-  the workload is very small per batch, so fixed per-call cost dominates and the
-  numbers must not be extrapolated to large-`F` or large-`N` cases.
-* The original PyG baseline runs on the host CPU (torch_npu fallback). It is a
-  *reference implementation* comparison, explicitly **not** an NPU-vs-NPU one.
-* The NPU is shared with other tenants on this host; runs were pinned to NPU 0
-  and `npu-smi` reported AICore 0% during the runs, but the machine is not a
-  dedicated benchmark box.
-* Percentiles come from 200 per-iteration samples; P99 therefore rests on two
-  samples.
-* `dataset_cascades.zip` v3 (README link) and v5 (current article version)
-  contain byte-identical raw files; v3 was used.
-* pandas/scipy/scikit-learn were deliberately not installed; the two unused
-  imports are stubbed in-process.
-* Operator rows whose `status` is not `ok`: 0 of 96.
-  None.
+* 所有 PowerGraph graph-level 数据集的 `F = 3`，每图节点数 24–118；单 batch 的
+  workload 非常小，因此固定单次调用开销占主导，这些数字**不能**外推到大 `F` 或大 `N`
+  的场景。
+* 原始 PyG 对照路径运行在 host CPU（torch_npu fallback）上，它是与*参考实现*的对照，
+  **明确不是**同设备（NPU vs NPU）的比较。
+* 本机 NPU 与其他租户共享；测试固定使用 NPU 0，运行期间 `npu-smi` 显示 AICore 0%，
+  但该机器并非专用性能测试机。
+* 百分位数来自 200 个逐次迭代样本，因此 P99 实际只依赖约 2 个样本。
+* `dataset_cascades.zip` v3（README 链接版本）与 v5（当前 article 版本）包含逐字节
+  一致的 raw 文件；本次使用 v3。
+* pandas / scipy / scikit-learn 有意未安装；两个未被调用的 import 用进程内 stub 满足。
+* `status` 不为 `ok` 的算子记录：96 条中 0 条（无）。
 
-## 18. Conclusion
+## 18. 测试结论
 
-On real PowerGraph batches the frozen Ascend path is **functionally correct and
-fully device-resident**: every profiled case runs `ScatterMaxV1` on
-`AI_VECTOR_CORE` (kernel hash `...7d55161965c898907fdb3028d01c7c76_0`), with
-zero AI_CPU tasks, zero `aten::scatter_reduce` calls and no host-CPU fallback
-marker, and all 96 dataset x batch x dtype forward cases plus all 48
-forward+backward cases match the CPU PyG oracle within tolerance.
+在真实 PowerGraph batch 上，冻结的 Ascend 路径**功能正确且完全 device-resident**：
+每个 profiled case 的 `ScatterMaxV1` 都运行在 `AI_VECTOR_CORE`
+（kernel hash `...7d55161965c898907fdb3028d01c7c76_0`），AI_CPU 任务为 0、
+`aten::scatter_reduce` 调用为 0、无 host CPU fallback 标记；96 个
+dataset × batch × dtype 的 forward case 与 48 个 forward+backward case 全部在容差内
+与 CPU PyG oracle 一致。
 
-Performance-wise the picture is much less favourable, and the reason is
-structural rather than kernel-related:
+在性能方面，本数据集上的表现不那么有利，而且原因是结构性的，而非 kernel 本身：
 
-* the ScatterMaxV1 kernel itself takes **27-33 us** for ieee24/uk and **120 us**
-  for ieee118 at batch=128;
-* the full `global_max_pool` call takes **840-1,170 us** across all 96 forward
-  cases, because the frozen adapter pays one mandatory device->host
-  synchronisation plus ~9 auxiliary NPU operations on every call;
-* consequently the measured latency is essentially independent of batch size
-  for ieee24/ieee39/uk (fixed overhead dominates) and rises only modestly for
-  ieee118 (856 us at batch=1 to 1,133 us at batch=128 as the kernel becomes
-  visible);
-* against the upstream PyG implementation — which torch_npu executes on the
-  **host CPU** at ~700-1,120 us for all cells except one — the Ascend path is
-  therefore **0.6x-1.06x**, i.e. no speed-up at PowerGraph's `F = 3`,
-  24-118 nodes scale. The single exception is `ieee118` batch=128, where the
-  CPU fallback degrades to ~29 ms and the Ascend path is ~26x faster, but that
-  cell is unstable across processes and must not be generalised.
+* `ScatterMaxV1` kernel 本身在 ieee24 / uk 上约 **27–33 us**，在 ieee118 batch=128
+  上约 **120 us**；
+* 完整 `global_max_pool` 调用在全部 96 个 forward case 上为 **840–1,170 us**，
+  因为冻结 adapter 每次调用都要付出一次强制 device→host 同步加约 9 个辅助 NPU 操作；
+* 因此 ieee24 / ieee39 / uk 的实测 latency 基本与 batch 大小无关（固定开销占主导），
+  ieee118 只是温和上升（batch=1 的 856 us 到 batch=128 的 1,133 us，kernel 开始显现）；
+* 相对于上游 PyG 实现（torch_npu 将其执行在 **host CPU** 上，除一个组合外均为
+  ~700–1,120 us），Ascend 路径为 **0.6x–1.06x**，即在 PowerGraph 的 `F = 3`、
+  24–118 nodes 规模下没有加速。唯一例外是 `ieee118` batch=128：CPU fallback 退化到
+  ~29 ms，Ascend 路径约快 26 倍，但该组合跨进程不稳定，不能推广。
 
-Bottom line for this dataset: the frozen operator is a correct, host-fallback-free
-Ascend implementation, and it wins decisively as soon as the reduction becomes
-large enough to matter; for PowerGraph's very small `F = 3` graphs the fixed
-per-call overhead dominates and the CPU fallback is competitive.
+对本数据集的总体判断：冻结算子是正确、无 host fallback 的 Ascend 实现；一旦 reduction
+的规模足够大，它就会明显胜出；而在 PowerGraph 这种极小的 `F = 3` graph 上，固定单次
+调用开销占主导，CPU fallback 具有竞争力。

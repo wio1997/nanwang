@@ -1,32 +1,30 @@
-# POWERGRAPH GLOBAL_MAX_POOL VALIDATION
+# PowerGraph 真实电力图 `global_max_pool` 验证
 
-> **Packaging note (repository copy).** This is the reviewed validation document
-> as committed into `pyg-ascend-compat/global_max_pool/powergraph_validation/`.
-> All measured numbers, tables and evidence are byte-for-byte the reviewed ones;
-> only path statements were adapted. References to the *original validation
-> environment* (`/root/zyg/...`, `/data/zyg/...`) are kept as historical record,
-> while every runnable instruction now uses the repository-relative package
-> layout with environment-variable overrides (see `README.md` §4).
+> **入库说明（仓库版本）。** 本文档是经人工评审通过的验证文档，随
+> `pyg-ascend-compat/global_max_pool/powergraph_validation/` 一并入库。
+> 所有实测数字、表格与证据与评审版本完全一致，仅调整了路径表述。
+> 文中标注为 *original validation environment*（原始验证环境）的绝对路径
+> （`/root/zyg/...`、`/data/zyg/...`）作为历史记录保留；所有可执行步骤已改为
+> 仓库内相对路径，并可用环境变量覆盖（见 `README.md` §4）。
 
 ## 使用 PowerGraph 真实电力图数据，对 Ascend PyG `global_max_pool` 算子进行真实 workload 验证和性能测试
 
 本文档是**测试交付文档**（test delivery / validation record），不是性能优化报告，
 也不是算子开发记录。
 
-| item | value |
+| 项目 | 值 |
 |---|---|
 | 被测对象 | 已冻结的 PyG Ascend `global_max_pool` 实现 |
 | 测试数据 | `PowerGraph-Datasets/PowerGraph-Graph` 真实电网 graph-level 数据 |
 | 测试方式 | 真实 PyG `DataLoader` batch，单算子调用，不含 GNN / 训练 |
-| 测试轮次 | forward + forward&backward + msprof profiler gate |
+| 测试轮次 | forward + forward&backward + msprof Profiler gate |
 | 本轮验收标准 | 真实数据可运行、真实 PyG batch 可运行、FP32/FP16/BF16 可运行、结果正确、真正跑在 NPU 上、benchmark 方法正确 |
 | 本轮**不**作为验收标准 | 相对原始 PyG fallback 的 speedup |
 
 **结论摘要**：本轮所有验收目标均已达成 —— 真实数据、真实 PyG batch、FP32/FP16/BF16、
-forward 与 forward+backward 全部通过，结果与 CPU oracle 一致，且 profiler 证明
-`ScatterMaxV1` 实际运行在 `AI_VECTOR_CORE`，无 Host fallback、无 AI_CPU、无
-`aten::scatter_reduce`。性能数据作为 workload characterization 保留，不作为本轮
-PASS/FAIL 条件。
+forward 与 forward+backward 全部通过，结果与 CPU oracle 一致，且 Profiler 证明
+`ScatterMaxV1` 实际运行在 `AI_VECTOR_CORE`，无 Host fallback（主机侧回退）、无 AI_CPU、
+无 `aten::scatter_reduce`。性能数据作为 workload 画像保留，**不作为本轮 PASS/FAIL 判据**。
 
 ---
 
@@ -58,12 +56,12 @@ accuracy / AUC / R²、不复现论文指标。只把 PowerGraph 当作**真实�
 
 ## 2. 被测算子（frozen）
 
-| item | value |
+| 项目 | 值 |
 |---|---|
-| repository | `https://github.com/wio1997/nanwang` |
-| branch | `feat/global-max-pool-scattermax-zyg` |
-| operator implementation frozen SHA | `c15423e7b303d2b1597621c64585252472301537` |
-| delivery / docs HEAD | `d1dc616b809c32819f3f1fab9a8c43528f824f05` |
+| 仓库 | `https://github.com/wio1997/nanwang` |
+| 分支 | `feat/global-max-pool-scattermax-zyg` |
+| 算子实现冻结 SHA | `c15423e7b303d2b1597621c64585252472301537` |
+| 交付 / 文档 HEAD | `d1dc616b809c32819f3f1fab9a8c43528f824f05` |
 
 说明：
 
@@ -90,13 +88,13 @@ ab7fd9d2d18796e35a66df07dcaac82e625e07eed76341e217487acf4e83f654  pyg-ascend-com
 
 ## 3. 测试环境
 
-| item | value |
+| 项目 | 值 |
 |---|---|
-| Server | `S900K3-47` |
-| Accelerator | 8 × Ascend 910B3（测试固定使用 `ASCEND_RT_VISIBLE_DEVICES=0`） |
-| OS | Ubuntu 22.04 aarch64（`Linux 5.15.0-25-generic`） |
-| Container | `wio-pyg-cann851-pyg280` |
-| Image | `local/wio-pyg-cann851:torch2.9-pyg2.8.0.post1` |
+| 服务器 | `S900K3-47` |
+| 加速卡 | 8 × Ascend 910B3（测试固定使用 `ASCEND_RT_VISIBLE_DEVICES=0`） |
+| 操作系统 | Ubuntu 22.04 aarch64（`Linux 5.15.0-25-generic`） |
+| 容器 | `wio-pyg-cann851-pyg280` |
+| 镜像 | `local/wio-pyg-cann851:torch2.9-pyg2.8.0.post1` |
 | CANN | 8.5.1（`/usr/local/Ascend/cann-8.5.1`） |
 | Python | 3.11.14 |
 | PyTorch | 2.9.0+cpu |
@@ -174,7 +172,7 @@ ieee24 / ieee39 / ieee118 / uk
 实测 workload（数据取自 `results/phase_a_raw_audit.json`、
 `results/forward_*_workload.json`、`results/phase_a_loader*.json`）：
 
-| dataset | graph count | nodes/graph | F | edges/graph（edge_index，有向） |
+| 数据集 | graph 数 | 每图节点数 | F | 每图边数（edge_index，有向） |
 |---|---|---|---|---|
 | ieee24 | 21,500 | 24 | 3 | 68–74 |
 | ieee39 | 28,000 | 39 | 3 | 86–90 |
@@ -193,10 +191,10 @@ ieee24 / ieee39 / ieee118 / uk
 
 原始数据文件（README 链接的 PowerGraph 压缩包）：
 
-| item | value |
+| 项目 | 值 |
 |---|---|
 | figshare article / file | `22820534` / `46619158`（`dataset_cascades.zip`, v3） |
-| download bytes | 61,628,977 |
+| 下载大小 | 61,628,977 bytes |
 | md5 | `70b677416d2f377ccfee9f51d8369867` |
 | 解压后大小 | 2,958,249,040 bytes（2.75 GiB） |
 | 交叉核对 | 同一 article 的 v5 文件 `50083479` 也已下载，md5 与 figshare 公布值 `d4d144b9e720a760e1e077a31f34802d` 一致；两者 raw 文件逐字节同尺寸，仅多一层顶层目录 |
@@ -325,14 +323,14 @@ autograd（FP32）或 Stage 5 dtype autograd（FP16/BF16）。
 = 96 cases
 ```
 
-**结果：96 / 96 forward cases completed，0 failures。**
+**结果：96 / 96 forward case 全部完成，0 失败。**
 
 实测证据：`results/forward_phaseB_ieee24.csv`（24 行，ieee24）+
 `results/forward_phaseC.csv`（72 行，ieee39 / ieee118 / uk）= **96 行 CSV**。
 每个 dataset 共 **24 个 forward cases**（4 batch × 3 dtype × 2 paths），
 每个 case 在 CSV 中**恰好 1 行**；96 行的 `status` 全部为 `ok`。
 
-### 7.2 Forward + first-order backward
+### 7.2 Forward + 一阶 backward
 
 ```text
 4 datasets
@@ -367,7 +365,7 @@ backward 结果放在**独立 CSV / 独立表格**中（`results/forward_backwar
 
 ---
 
-## 8. dtype
+## 8. 数据类型（dtype）
 
 测试了三种 dtype：`FP32` / `FP16` / `BF16`。
 
@@ -384,22 +382,22 @@ FP16 / BF16 通过 device 上的 Cast 前后转换实现。该 cast 链在 profi
 
 ---
 
-## 9. Benchmark 方法
+## 9. 性能测试方法
 
 以下参数直接取自实际执行的脚本，不是估计值。
 
-### 9.1 真实配置
+### 9.1 实际使用的配置
 
 来自 `scripts/run_final.sh` 中的实际调用：
 
-| item | value |
+| 项目 | 值 |
 |---|---|
-| warmup iterations | **30** |
+| warmup（预热）迭代次数 | **30** |
 | measurement iterations | **200** |
 | host timer | `time.perf_counter()`（`host_total_us` 交叉校验） |
-| device timer | 每次迭代一对 `torch.npu.Event(enable_timing=True)` |
+| 设备计时器 | 每次迭代一对 `torch.npu.Event(enable_timing=True)` |
 | sync 方式 | `torch.npu.synchronize()`：warmup 后、t0 前、最后一次 launch 后 |
-| per-iteration latency | **保存**（`results/forward_per_iter_*.csv`） |
+| 逐次迭代 latency | **保存**（`results/forward_per_iter_*.csv`） |
 | 设备 | `ASCEND_RT_VISIBLE_DEVICES=0`，`npu:0` |
 
 实际命令行（`scripts/run_final.sh` 原文）：
@@ -427,7 +425,7 @@ host 端 launch 时间而不是 device 执行时间；不 synchronize 会严重�
 
 因此本测试采用两层措施。
 
-**（1）device-side per-iteration event timing（主指标）**
+**（1）设备侧逐次迭代 event 计时（主指标）**
 
 ```python
 for _ in range(warmup):
@@ -464,7 +462,7 @@ for _ in range(iters):
 
 被测的 frozen adapter 在**每次调用中都会做一次 device→host 同步**（用于 `batch`
 索引范围校验与 `size` 推导：`torch.stack((batch.min(), batch.max())).cpu().tolist()`），
-并额外发起约 9 个 auxiliary NPU op。因此 back-to-back launch 循环实际上无法把调用
+并额外发起约 9 个辅助 NPU op。因此 back-to-back launch 循环实际上无法把调用
 排队 —— 量到的**就是 frozen 算子的真实单次调用延迟**，不是流水线吞吐。
 这一点在 §12 用独立 probe 量化说明。
 
@@ -502,12 +500,12 @@ sync_mean / sync_p50 / sync_p95 / sync_p99（同步循环对照）
 
 | 检查项 | 结果 |
 |---|---|
-| shape check | **96 / 96 PASS** |
-| NaN / Inf check | **96 / 96 PASS**（NaN = 0，Inf = 0） |
-| oracle tolerance mismatch | **0**（全部 96 个 case） |
-| FP32 vs CPU oracle | **bit-exact**（`oracle_exact_mismatch = 0`，`max_abs_diff = 0`） |
-| FP16 vs CPU oracle | 最大绝对偏差 `2.35e-4`，最大相对偏差 `4.06e-4`，tolerance mismatch = **0**（在 1,944 个非零偏差元素中） |
-| BF16 vs CPU oracle | 最大绝对偏差 `1.95e-3`，最大相对偏差 `2.99e-3`，tolerance mismatch = **0**（在 2,028 个非零偏差元素中） |
+| 输出 shape 检查 | **96 / 96 PASS** |
+| NaN / Inf 检查 | **96 / 96 PASS**（NaN = 0，Inf = 0） |
+| 与 oracle 的容差比对 | **0 处超差**（全部 96 个 case） |
+| FP32 与 CPU oracle | **逐比特一致（bit-exact）**（`oracle_exact_mismatch = 0`，`max_abs_diff = 0`） |
+| FP16 与 CPU oracle | 最大绝对偏差 `2.35e-4`，最大相对偏差 `4.06e-4`，容差外元素 = **0**（在 1,944 个非零偏差元素中） |
+| BF16 与 CPU oracle | 最大绝对偏差 `1.95e-3`，最大相对偏差 `2.99e-3`，容差外元素 = **0**（在 2,028 个非零偏差元素中） |
 
 补充说明（真实数据）：FP32 的 `oracle_exact_mismatch = 0`，即与 CPU PyG oracle
 逐比特一致；FP16 / BF16 由于 cast 舍入存在非零偏差元素
@@ -557,19 +555,19 @@ ieee24_b128_fp32_origpyg   ieee24  128 fp32 original_pyg   （baseline 对照）
 
 ### 11.2 profiler 结果
 
-| case | path | ScatterMaxV1 tasks | core type | kernel avg (us) | AI_CPU tasks | aten::scatter_reduce | Host fallback markers | gate |
+| case | path | ScatterMaxV1 任务数 | 执行核心类型 | kernel 平均耗时 (us) | AI_CPU 任务数 | aten::scatter_reduce | Host fallback 标记 | gate |
 |---|---|---|---|---|---|---|---|---|
 | ieee24_b128_fp32 | compat_ascend | 8 | `AI_VECTOR_CORE` | 27.43 | 0 | 0 | NONE | PASS |
 | ieee24_b128_fp16 | compat_ascend | 8 | `AI_VECTOR_CORE` | 25.62 | 0 | 0 | NONE | PASS |
 | ieee24_b128_bf16 | compat_ascend | 8 | `AI_VECTOR_CORE` | 25.46 | 0 | 0 | NONE | PASS |
 | ieee118_b128_fp32 | compat_ascend | 8 | `AI_VECTOR_CORE` | 119.88 | 0 | 0 | NONE | PASS |
 | uk_b128_fp32 | compat_ascend | 8 | `AI_VECTOR_CORE` | 32.82 | 0 | 0 | NONE | PASS |
-| ieee24_b128_fp32_origpyg | original_pyg | **0** | – | – | 0 | 0 | **PRESENT** | N/A（预期） |
+| ieee24_b128_fp32_origpyg | original_pyg | **0** | – | – | 0 | 0 | **存在（PRESENT）** | N/A（预期） |
 
 每个 case 为 3 次 warmup + 5 次 profiled call，任务数 8 是因为 warmup 期间的 device
 任务同样被 profiler 捕获。
 
-### 11.3 ScatterMaxV1 kernel identity
+### 11.3 ScatterMaxV1 kernel 标识
 
 所有 compat case 中实际执行的 device kernel 名（完整名称）：
 
@@ -586,7 +584,7 @@ validation environment** 的实际安装位置）：
 sha256 = 755a59daeba86e1388c860d633f3dfc94468975832bf05abc5695bb4802130a8
 ```
 
-### 11.4 fallback / AI_CPU / scatter_reduce 审计
+### 11.4 Host fallback / AI_CPU / scatter_reduce 审计
 
 对所有 `compat_ascend` profiler case：
 
@@ -630,27 +628,27 @@ phaseC 运行 : total_calls=16596   ascend_calls=16596   original_calls=0
 完整表格见同目录 `POWERGRAPH_GLOBAL_MAX_POOL_PERFORMANCE_EVIDENCE.md`（含
 mean / P50 / P95 / P99 / graphs/sec / nodes/sec 与逐迭代数据）。本节只保留解读所需内容。
 
-### 12.1 FP32 / compat（mean latency, us）
+### 12.1 FP32 / compat（平均 latency，单位 us）
 
-| dataset | b=1 | b=8 | b=32 | b=128 |
+| 数据集 | b=1 | b=8 | b=32 | b=128 |
 |---|---|---|---|---|
 | ieee24 | 914.2 | 889.1 | 894.2 | 921.4 |
 | ieee39 | 971.3 | 917.8 | 877.6 | 937.6 |
 | ieee118 | 856.1 | 875.7 | 979.1 | 1132.5 |
 | uk | 995.1 | 841.6 | 865.9 | 858.1 |
 
-### 12.2 FP16（cast chain，mean latency, us）
+### 12.2 FP16（cast 链，平均 latency，单位 us）
 
-| dataset | b=1 | b=8 | b=32 | b=128 |
+| 数据集 | b=1 | b=8 | b=32 | b=128 |
 |---|---|---|---|---|
 | ieee24 | 916.2 | 946.5 | 956.7 | 945.6 |
 | ieee39 | 943.6 | 985.9 | 1026.8 | 950.7 |
 | ieee118 | 902.0 | 1111.7 | 1108.9 | 1117.7 |
 | uk | 1106.8 | 989.5 | 924.8 | 912.0 |
 
-### 12.3 BF16（cast chain，mean latency, us）
+### 12.3 BF16（cast 链，平均 latency，单位 us）
 
-| dataset | b=1 | b=8 | b=32 | b=128 |
+| 数据集 | b=1 | b=8 | b=32 | b=128 |
 |---|---|---|---|---|
 | ieee24 | 955.6 | 956.3 | 900.2 | 937.3 |
 | ieee39 | 983.1 | 940.1 | 1009.8 | 948.9 |
@@ -702,7 +700,7 @@ occupancy 的 zeros + scatter_          约 287 us
 
 ---
 
-## 13. Original PyG baseline（工程观察，非验收条件）
+## 13. 原始 PyG 对照路径（工程观察，非验收条件）
 
 本轮同时测量了 compat path 与 original PyG path 作为工程对照。
 
@@ -734,7 +732,7 @@ speedup = original_pyg_mean_us / compat_mean_us
 
 | 范围 | 值 | 说明 |
 |---|---|---|
-| 除 ieee118 batch=128 外的 45 个 cell | **0.63x – 1.06x** | PowerGraph F=3 下的完整 API observation |
+| 除 ieee118 batch=128 外的 45 个组合 | **0.63x – 1.06x** | PowerGraph F=3 下的完整 API 观测值 |
 | ieee118 batch=128（fp32 / fp16 / bf16） | 31.2x / 28.7x / 35.5x | **不作为正式稳定 speedup 结论** |
 
 ### 13.2 为什么 ieee118 batch=128 的单点 speedup 不采信
@@ -756,7 +754,7 @@ batch=128 跳到约 29 ms；节点数只增加 2 倍而时间增加约 24 倍）
 
 ---
 
-## 14. 测试文件和 evidence
+## 14. 测试文件与证据
 
 本文件与其全部脚本、结果均已随本包进入算子仓库，包内路径：
 
@@ -764,7 +762,7 @@ batch=128 跳到约 29 ms；节点数只增加 2 倍而时间增加约 24 倍）
 <repo>/pyg-ascend-compat/global_max_pool/powergraph_validation/
 ```
 
-**original validation environment**（历史记录，Reviewer 不需要拥有相同目录）：
+**original validation environment**（历史记录，评审人不需要拥有相同目录）：
 
 ```text
 container : /root/zyg/powergraph-global-max-pool-bench/
@@ -776,7 +774,7 @@ host      : /data/zyg/powergraph-global-max-pool-bench/
 `POWERGRAPH_PROFILE_ROOT`、`POWERGRAPH_UPSTREAM_DIR`、`GLOBAL_MAX_POOL_OPP`、
 `SCATTERMAXV1_BRIDGE`）。仓库内路径与各变量默认值见 `README.md`。
 
-### 14.1 benchmark / 验证脚本
+### 14.1 性能测试 / 验证脚本
 
 ```text
 scripts/bench_env.sh                          运行环境（OPP、frozen adapter 路径、bridge、各 root、NPU 绑定）
@@ -800,7 +798,7 @@ scripts/analysis/make_summaries.py            生成 performance_summary.csv / p
 scripts/analysis/make_report.py               渲染详细 evidence 报告
 ```
 
-### 14.2 结果与 evidence
+### 14.2 结果与证据
 
 ```text
 README.md                                    Reviewer 入口
@@ -922,7 +920,7 @@ proxy）。完整的数据来源、file id、checksum 与 license 说明见 [`DA
 （ieee24 约 65 MB、ieee39 约 105 MB、ieee118 约 1.81 GB、uk 约 0.5 GB）；
 后续运行直接复用。
 
-### 15.4 运行 benchmark
+### 15.4 运行性能测试
 
 ```bash
 source scripts/bench_env.sh
@@ -960,7 +958,7 @@ python3 scripts/analysis/make_summaries.py            # 归档证据 -> performa
 python3 scripts/analysis/make_report.py               # 重新渲染详细 evidence 报告
 ```
 
-### 15.6 运行 profiler representative cases
+### 15.6 运行代表 case 的 Profiler
 
 ```bash
 source scripts/bench_env.sh

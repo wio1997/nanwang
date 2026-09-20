@@ -1189,38 +1189,39 @@ aten::scatter_reduce: NOT CALLED
 
 ---
 
-## 15. PowerGraph real-workload validation
+## 15. PowerGraph 真实电力图验证
 
-在冻结实现之上，使用 **PowerGraph 真实电力图数据**（真实 PyG graph-level dataset，
-不训练 GNN、不做整网测试）完成了 `global_max_pool` 单算子的真实 workload 验证与性能测量。
+在冻结实现之上，使用 **PowerGraph 真实电力图数据**（真实 PyG graph-level 数据集，
+不训练 GNN、不做整网测试）完成了 `global_max_pool` 单算子的真实 workload 验证与性能测试。
 
 ```text
-PowerGraph real-workload validation
+PowerGraph 真实电力图验证结果
 
-Datasets:  IEEE24 / IEEE39 / IEEE118 / UK
-Real PyG batch: PASS
+数据集:            IEEE24 / IEEE39 / IEEE118 / UK
+真实 PyG batch:     PASS
 FP32 / FP16 / BF16: PASS
 Forward:            96 / 96 PASS
 Forward + Backward: 48 / 48 PASS
-CPU PyG oracle:     PASS（FP32 bit-exact）
+CPU PyG oracle:     PASS（FP32 逐比特一致）
 ScatterMaxV1:       AI_VECTOR_CORE
 AI_CPU:             0
-Host fallback:      NONE on compat path
-aten::scatter_reduce: NOT CALLED on compat path
+Host fallback:      NONE（compat path）
+aten::scatter_reduce: 未调用（compat path）
 ```
 
-详细内容：
+详细内容（全部为中文文档）：
 
 * 入口 / 复现说明：[`powergraph_validation/README.md`](powergraph_validation/README.md)
 * 完整技术报告：[`powergraph_validation/POWERGRAPH_GLOBAL_MAX_POOL_VALIDATION.md`](powergraph_validation/POWERGRAPH_GLOBAL_MAX_POOL_VALIDATION.md)
-* 数据来源与 checksum：[`powergraph_validation/DATASET.md`](powergraph_validation/DATASET.md)
+* 数据来源与校验值：[`powergraph_validation/DATASET.md`](powergraph_validation/DATASET.md)
+* 逐项性能数据：[`powergraph_validation/POWERGRAPH_GLOBAL_MAX_POOL_PERFORMANCE_EVIDENCE.md`](powergraph_validation/POWERGRAPH_GLOBAL_MAX_POOL_PERFORMANCE_EVIDENCE.md)
 
 该验证只新增文档 / 脚本 / 结果，未改动本仓库任何 frozen operator implementation
 （adapter / autograd / compat / Stage 1-6 源码均未变更）。
 
-> 说明：PowerGraph 的节点特征维度为 `F = 3`，属于极小 feature workload，端到端
-> API latency 主要受适配层固定开销影响，因此**相对原始 PyG fallback 的 speedup
-> 不作为该验证的 PASS/FAIL 条件**。
+> 说明：PowerGraph 的节点特征维度为 `F = 3`，属于极小的 feature workload，端到端
+> API latency 主要受适配层固定开销影响，因此**相对原始 PyG fallback（主机侧回退）
+> 的性能比较仅作为工程观察，不作为该验证的 PASS/FAIL 判据**。
 
 ---
 

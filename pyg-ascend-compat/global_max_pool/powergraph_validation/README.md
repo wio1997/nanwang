@@ -1,113 +1,110 @@
-# PowerGraph real-workload validation — `global_max_pool`
+# PowerGraph 真实电力图 `global_max_pool` 验证
 
-Real-workload validation and single-operator performance measurement of the
-**frozen** PyG Ascend `global_max_pool` implementation on real power-grid graph
-data from [`PowerGraph-Datasets/PowerGraph-Graph`](https://github.com/PowerGraph-Datasets/PowerGraph-Graph).
+本文档是 PowerGraph 真实 workload 验证包的**入口页**。本验证针对已冻结（frozen）的
+PyG Ascend `global_max_pool` 实现，在
+[`PowerGraph-Datasets/PowerGraph-Graph`](https://github.com/PowerGraph-Datasets/PowerGraph-Graph)
+提供的真实电力系统图数据上，做单算子的可运行性验证与性能测试。
 
-> **This validation does not train a GNN.**
-> PowerGraph is used **only as a real PyG graph data source**: graphs are loaded
-> through the unmodified upstream `PowerGrid` `InMemoryDataset`, batched with
-> `torch_geometric.loader.DataLoader`, and only `batch.x` / `batch.batch` are
-> handed to `global_max_pool`. No convolution, no `Linear`, no optimizer, no
-> accuracy evaluation.
+> **本验证不训练 GNN。**
+> PowerGraph 在这里**仅作为真实 PyG 图数据源**：图数据通过上游未修改的 `PowerGrid`
+> `InMemoryDataset` 加载，用 `torch_geometric.loader.DataLoader` 组 batch，只把
+> `batch.x` 与 `batch.batch` 交给 `global_max_pool`。不做卷积、不做 `Linear`、
+> 不做优化器、不做精度评估。
 
-Full technical report: [`POWERGRAPH_GLOBAL_MAX_POOL_VALIDATION.md`](POWERGRAPH_GLOBAL_MAX_POOL_VALIDATION.md)
+完整技术报告：[`POWERGRAPH_GLOBAL_MAX_POOL_VALIDATION.md`](POWERGRAPH_GLOBAL_MAX_POOL_VALIDATION.md)
 
 ---
 
-## 1. What this validation is
+## 1. 本验证做什么
 
-It answers: *does the frozen Ascend `global_max_pool` work on real PyG graph
-workloads, is it correct, and does it actually execute on the NPU?* The accepted
-criteria for this round are functional and evidence-based, **not** speed-up
-based:
+回答三个问题：冻结后的 Ascend `global_max_pool` 在**真实 PyG 图 workload** 下能否正常
+运行？结果是否正确？是否**真的运行在 NPU** 上？
 
-| accepted | value |
+本轮的验收判据是功能性与证据性的，**不以相对原始 PyG fallback（主机侧回退）的加速比
+作为判据**：
+
+| 验收项 | 结果 |
 |---|---|
-| real data / real PyG batch | PASS |
+| 真实数据 / 真实 PyG batch | PASS |
 | FP32 / FP16 / BF16 | PASS |
-| forward | **96 / 96 PASS** |
-| forward + first-order backward | **48 / 48 PASS** |
-| CPU PyG oracle agreement | PASS (FP32 bit-exact) |
-| `ScatterMaxV1` core type | `AI_VECTOR_CORE` |
-| AI_CPU tasks | 0 |
-| compat host fallback | NONE |
-| compat `aten::scatter_reduce` | 0 (not called) |
+| Forward | **96 / 96 PASS** |
+| Forward + first-order backward | **48 / 48 PASS** |
+| 与 CPU PyG oracle 一致 | PASS（FP32 逐比特一致） |
+| `ScatterMaxV1` 执行核心类型 | `AI_VECTOR_CORE` |
+| AI_CPU 任务数 | 0 |
+| compat 路径 Host fallback（主机侧回退） | NONE |
+| compat 路径 `aten::scatter_reduce` | 0（未被调用） |
 
-Speed-up versus the upstream PyG fallback is recorded as workload
-characterization only and is **not** a PASS/FAIL condition. PowerGraph's node
-feature dimension is `F = 3`, i.e. an extremely small feature workload where the
-adapter's fixed per-call cost dominates the end-to-end latency; that number does
-not represent the ScatterMaxV1 kernel's capability at larger `F`.
+## 2. 测试了哪些数据集
 
-## 2. Datasets measured
-
-| dataset | graphs | nodes/graph | F | edges/graph (directed) |
+| 数据集 | graph 数 | 每图节点数 | F | 每图边数（有向） |
 |---|---|---|---|---|
 | `ieee24` | 21,500 | 24 | 3 | 68–74 |
 | `ieee39` | 28,000 | 39 | 3 | 86–90 |
 | `ieee118` | 122,500 | 118 | 3 | 362–370 |
 | `uk` | 64,000 | 29 | 3 | 190–196 |
 
-Nodes per graph are fixed per dataset; the edge count varies because 1–5 branches
-per graph are tripped and removed by the loader before the forward + reversed
-edges are concatenated.
+每个数据集的每图节点数是固定的；每图边数会变化，因为每个 graph 有 1–5 条被切除的支路
+会在 loader 中删除，之后前向边再复制成双向。
 
-## 3. How to get the data
+PowerGraph 的节点特征维度只有 **F = 3**，属于非常小的 feature workload。在该规模下，
+完整 API latency 中固定的 adapter、同步与辅助算子开销占比较高，因此**不适合用来代表
+`ScatterMaxV1` 在更大 feature dimension 下的峰值性能能力**。详见完整验证报告。
 
-Raw data is **not** committed (2.75 GiB uncompressed). See [`DATASET.md`](DATASET.md)
-for source, checksum and license attribution.
+## 3. 如何获取数据
+
+原始数据**不随仓库提交**（解压后 2.75 GiB）。来源、校验值与许可证说明见
+[`DATASET.md`](DATASET.md)。
 
 ```bash
-# upstream loader checkout (read only) + dataset archive + extraction
+# 上游 loader checkout（只读）+ 数据归档 + 解压
 cd pyg-ascend-compat/global_max_pool/powergraph_validation
 
 git clone https://github.com/PowerGraph-Datasets/PowerGraph-Graph.git \
     upstream/PowerGraph-Graph
 
-# figshare is reachable from most networks; on the original validation network it
-# returned HTTP 403, so a proxy fallback is supported (see DATASET.md)
+# 官方 figshare 地址；在原始验证网络中 figshare 返回 HTTP 403，
+# 因此脚本同时支持 proxy 回退（见 DATASET.md）
 bash scripts/fetch_powergraph_data.sh
 python3 scripts/extract_powergraph_data.py
 ```
 
-Expected layout after extraction:
+解压后的目录结构：
 
 ```text
 $POWERGRAPH_DATA_ROOT/<name>/<name>/raw/{Bf,blist,Ef,exp,of_bi,of_mc,of_reg}.mat
-# e.g. data/ieee24/ieee24/raw/Bf.mat
+# 例如 data/ieee24/ieee24/raw/Bf.mat
 ```
 
-On first use the unmodified `PowerGrid` loader writes
-`$POWERGRAPH_DATA_ROOT/<name>/<name>/processed_b/data.pt`.
+首次运行时，未修改的 `PowerGrid` loader 会生成
+`$POWERGRAPH_DATA_ROOT/<name>/<name>/processed_b/data.pt`。
 
-## 4. How to prepare the environment
+## 4. 如何准备环境
 
 ```bash
-# inside the CANN container
+# 在 CANN 容器内
 source scripts/bench_env.sh
 ```
 
-`bench_env.sh` derives the repo root from its own location and exports the
-frozen compat package, the adapter/autograd/stage5 module paths, the custom OPP
-and the benchmark roots. Everything is overridable:
+`bench_env.sh` 从脚本自身位置推导仓库根目录，并导出 frozen compat 包、adapter /
+autograd / stage5 模块路径、custom OPP 以及各 benchmark 根目录。所有路径都可以覆盖：
 
-| variable | default |
+| 环境变量 | 默认值 |
 |---|---|
-| `GLOBAL_MAX_POOL_OPP` | this server's `scattermax_runtime_opp/vendors/customize` |
-| `SCATTERMAXV1_BRIDGE` | this server's `stage2_ext/scattermaxv1_bridge.so` |
+| `GLOBAL_MAX_POOL_OPP` | 本服务器的 `scattermax_runtime_opp/vendors/customize` |
+| `SCATTERMAXV1_BRIDGE` | 本服务器的 `stage2_ext/scattermaxv1_bridge.so` |
 | `POWERGRAPH_UPSTREAM_DIR` | `<package>/upstream/PowerGraph-Graph` |
 | `POWERGRAPH_DATA_ROOT` | `<package>/data` |
 | `POWERGRAPH_RESULTS_ROOT` | `<package>/results` |
 | `POWERGRAPH_PROFILE_ROOT` | `<package>/profiler_runs` |
 | `ASCEND_RT_VISIBLE_DEVICES` | `0` |
 
-Extra Python packages needed on top of the frozen Ascend environment are listed
-in [`requirements-validation.txt`](requirements-validation.txt) —
-**do not install PowerGraph's upstream `requirements.txt`** (it pins old CUDA
-PyTorch/PyG).
+除冻结的 Ascend 环境之外，额外需要的 Python 包列在
+[`requirements-validation.txt`](requirements-validation.txt) ——
+**不要安装 PowerGraph 上游的 `requirements.txt`**（其中固定了旧的 CUDA 版
+PyTorch / PyG）。
 
-## 5. How to run the forward benchmark
+## 5. 如何运行 forward 性能测试
 
 ```bash
 source scripts/bench_env.sh
@@ -120,11 +117,11 @@ python3 scripts/bench_forward.py \
     --warmup 30 --iters 200 --tag repo_validation
 ```
 
-`--paths compat_ascend` measures the frozen Ascend path; `original_pyg` measures
-the upstream PyG implementation captured *before* `pyg_ascend_compat.enable()`
-(which on this torch_npu runs on the **host CPU**).
+`--paths compat_ascend` 测量冻结的 Ascend 路径；`original_pyg` 测量在
+`pyg_ascend_compat.enable()` **之前**捕获的上游 PyG 实现（在本 torch_npu 环境中它运行在
+**主机 CPU** 上）。
 
-## 6. How to run the backward benchmark
+## 6. 如何运行 backward 性能测试
 
 ```bash
 python3 scripts/bench_backward.py \
@@ -133,9 +130,9 @@ python3 scripts/bench_backward.py \
     --warmup 30 --iters 200 --tag repo_validation
 ```
 
-Each iteration is `x.grad = None; out = global_max_pool(x, batch); out.sum().backward()`.
+每次迭代执行 `x.grad = None; out = global_max_pool(x, batch); out.sum().backward()`。
 
-## 7. How to run the profiler
+## 7. 如何运行 Profiler
 
 ```bash
 source scripts/bench_env.sh
@@ -149,76 +146,78 @@ bash scripts/run_profiles.sh \
 cat "${POWERGRAPH_PROFILE_ROOT:-profiler_runs}/profiler_summary.txt"
 ```
 
-Gate per case: `ScatterMaxV1 -> AI_VECTOR_CORE: PASS`, `AI_CPU_task_types=[]`,
-`aten::scatter_reduce occurrences = 0`, no fallback markers, and compat counters
-`ascend_calls == total_calls` with `original_calls == 0`.
+每个 case 的 gate 要求：`ScatterMaxV1 -> AI_VECTOR_CORE: PASS`、`AI_CPU_task_types=[]`、
+`aten::scatter_reduce occurrences = 0`、无 fallback marker，且 compat counter 满足
+`ascend_calls == total_calls`、`original_calls == 0`。
 
-Everything in one go (syntax check → smoke → forward → forward+backward →
-profiler → summaries):
+也可以一次跑完全流程（syntax 检查 → smoke → forward → forward+backward → Profiler →
+汇总）：
 
 ```bash
-bash scripts/run_validation.sh              # full run
-bash scripts/run_validation.sh --smoke-only # fast post-migration check
+bash scripts/run_validation.sh              # 完整运行
+bash scripts/run_validation.sh --smoke-only # 迁移后的快速检查
 ```
 
-## 8. Where the results are
+## 8. 结果文件在哪里
 
 ```text
 results/
-  forward_phaseB_ieee24.csv                forward, ieee24                (24 rows)
-  forward_phaseC.csv                       forward, ieee39/ieee118/uk     (72 rows)
-  forward_backward_phaseC.csv              forward + first-order backward (48 rows)
-  forward_per_iter_*.csv                   per-iteration latency (P50/P95/P99 source)
+  forward_phaseB_ieee24.csv                forward，ieee24               （24 行）
+  forward_phaseC.csv                       forward，ieee39/ieee118/uk    （72 行）
+  forward_backward_phaseC.csv              forward + first-order backward（48 行）
+  forward_per_iter_*.csv                   逐次迭代 latency（P50/P95/P99 的来源）
   forward_backward_per_iter_phaseC.csv
-  performance_summary.csv                  derived: compat vs original PyG per cell
+  performance_summary.csv                  汇总：compat 与原始 PyG 对照（含 speedup 列）
   profiler_summary.csv / profiler_summary.txt
-  phase_a_raw_audit.json                   raw .mat / per-graph node+edge audit
+  phase_a_raw_audit.json                   原始 .mat / 每图节点与边数审计
   phase_a_loader.json, phase_a_loader_rest.json
-  overhead_breakdown.json                  sync floor / trivial op / raw kernel
-  adapter_step_breakdown.json              per-step cost of the adapter's device work
-  baseline_stability.json                  repeatability of the host-CPU fallback
+  overhead_breakdown.json                  同步下限 / trivial op / 裸 kernel 分解
+  adapter_step_breakdown.json              adapter 单次调用各步骤开销
+  baseline_stability.json                  主机 CPU fallback 路径的重复性
 evidence/
-  frozen_provenance.txt                    frozen SHAs + sha256 of every source
+  frozen_provenance.txt                    冻结 SHA 与各源码文件 sha256
   environment/pip_freeze_{before,after}.txt
-  profiler/<case>.gate.json                parsed profiler gate record
+  profiler/<case>.gate.json                解析后的 Profiler gate 记录
   profiler/<case>/mindstudio_profiler_output/{op_summary,op_statistic,api_statistic,task_time}.csv
 ```
 
-Raw msprof directories (hundreds of MB of sqlite/JSON) are **not** committed;
-regenerate them with `scripts/run_profiles.sh`.
+原始 msprof 输出目录（数百 MB 的 sqlite / JSON）**不随仓库提交**；可用
+`scripts/run_profiles.sh` 重新生成。
 
-## 9. Where the full technical report is
+## 9. 完整技术报告在哪里
 
 [`POWERGRAPH_GLOBAL_MAX_POOL_VALIDATION.md`](POWERGRAPH_GLOBAL_MAX_POOL_VALIDATION.md)
-— positioning, dataset provenance, exact benchmark method, correctness sanity,
-profiler evidence, latency interpretation, baseline comparison, limitations and
-the reviewer reproduction procedure.
+—— 包含测试定位、数据来源、完整性能测试方法、正确性检查、Profiler 验证证据、
+性能数据解读、与原始 PyG 路径的对照、已知限制，以及 Reviewer 可直接执行的复现步骤。
 
-## 10. Script map
+逐项性能数据（全部表格）另见
+[`POWERGRAPH_GLOBAL_MAX_POOL_PERFORMANCE_EVIDENCE.md`](POWERGRAPH_GLOBAL_MAX_POOL_PERFORMANCE_EVIDENCE.md)。
 
-| script | purpose |
+## 10. 脚本清单
+
+| 脚本 | 用途 |
 |---|---|
-| `scripts/bench_env.sh` | environment bootstrap (OPP, adapter paths, roots, NPU pin) |
-| `scripts/pg_env.py` | compat bootstrap before `torch_geometric` is imported + loader shims |
-| `scripts/pg_dataset.py` | unmodified `PowerGrid` loader wrapper |
-| `scripts/bench_forward.py` | forward benchmark (compat + original PyG) |
-| `scripts/bench_backward.py` | forward + first-order backward benchmark |
-| `scripts/profile_app.py` | msprof application for one representative case |
-| `scripts/parse_profile.py` | msprof `PROF_*` parser → gate JSON |
-| `scripts/run_profiles.sh` | profiler driver + gate checks |
-| `scripts/run_validation.sh` | end-to-end driver |
-| `scripts/fetch_powergraph_data.sh` | dataset download (official source + checksum) |
-| `scripts/extract_powergraph_data.py` | extraction into the loader's expected layout |
-| `scripts/analysis/phase_a_audit.py` | raw `.mat` audit |
-| `scripts/analysis/phase_a_loader_check.py` | processed-dataset / loader verification |
-| `scripts/analysis/smoke_compat.py` | import-order + 3-dtype smoke test |
-| `scripts/analysis/probe_overhead.py` | latency decomposition vs sync floor / raw kernel |
-| `scripts/analysis/probe_adapter_steps.py` | per-step adapter cost |
-| `scripts/analysis/probe_baseline_stability.py` | host-CPU fallback repeatability |
-| `scripts/analysis/make_summaries.py` | derives `performance_summary.csv`, `profiler_summary.csv` |
-| `scripts/analysis/make_report.py` | regenerates the detailed evidence report |
+| `scripts/bench_env.sh` | 环境引导（OPP、adapter 路径、各根目录、NPU 绑定） |
+| `scripts/pg_env.py` | 在 import `torch_geometric` 之前启用 compat，并提供 loader 所需 stub |
+| `scripts/pg_dataset.py` | 未修改的 `PowerGrid` loader 封装 |
+| `scripts/bench_forward.py` | forward 性能测试（compat + 原始 PyG） |
+| `scripts/bench_backward.py` | forward + first-order backward 性能测试 |
+| `scripts/profile_app.py` | 单个代表 case 的 msprof 应用 |
+| `scripts/parse_profile.py` | 解析 msprof `PROF_*` 输出为 gate JSON |
+| `scripts/run_profiles.sh` | Profiler 驱动与 gate 检查 |
+| `scripts/run_validation.sh` | 端到端驱动脚本 |
+| `scripts/fetch_powergraph_data.sh` | 数据集下载（官方来源 + checksum 校验） |
+| `scripts/extract_powergraph_data.py` | 解压为 loader 期望的目录结构 |
+| `scripts/analysis/phase_a_audit.py` | 原始 `.mat` 数据审计 |
+| `scripts/analysis/phase_a_loader_check.py` | processed 数据集 / loader 校验 |
+| `scripts/analysis/smoke_compat.py` | import 顺序 + 3 种 dtype 冒烟测试 |
+| `scripts/analysis/probe_overhead.py` | latency 分解（同步下限 / 裸 kernel） |
+| `scripts/analysis/probe_adapter_steps.py` | adapter 单步开销分解 |
+| `scripts/analysis/probe_baseline_stability.py` | 主机 CPU fallback 路径重复性探测 |
+| `scripts/analysis/make_summaries.py` | 生成 `performance_summary.csv`、`profiler_summary.csv` |
+| `scripts/analysis/make_report.py` | 重新渲染性能证据报告 |
 
-All benchmark scripts keep the mandatory import order:
+所有性能测试脚本都保持强制的 import 顺序：
 
 ```python
 import pyg_ascend_compat
