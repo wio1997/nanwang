@@ -1,0 +1,34 @@
+{
+  "datasets": [
+    {
+      "num_graphs": 21500,
+      "feature_dim": 3,
+      "x_dtype": "torch.float32",
+      "total_nodes": 516000,
+      "total_edges_directed": 1585800,
+      "nodes_per_graph_min": 516000,
+      "nodes_per_graph_max": 516000,
+      "nodes_per_graph_constant": true,
+      "edges_per_graph_min": 1585800,
+      "edges_per_graph_max": 1585800,
+      "nodes_per_graph_mean": 24.0,
+      "edges_per_graph_mean": 73.75813953488372,
+      "dataset": "ieee24",
+      "build_seconds": 131.75,
+      "processed_path": "/root/zyg/powergraph-global-max-pool-bench/data/ieee24/ieee24/processed_b/data.pt",
+      "processed_bytes": 64574857,
+      "num_classes_binary": 2,
+      "first_batch_smoke": {
+        "batch_size": 4,
+        "batch_x_shape": [
+          96,
+          3
+        ],
+        "batch_x_dtype": "torch.float32",
+        "batch_index_dtype": "torch.int64",
+        "num_graphs_in_batch": 4,
+        "num_features": 3
+      }
+    }
+  ]
+}

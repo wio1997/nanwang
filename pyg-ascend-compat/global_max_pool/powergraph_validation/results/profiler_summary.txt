@@ -1,0 +1,93 @@
+# PowerGraph global_max_pool profiler gate
+date=2026-09-20T08:00:15Z
+ASCEND_CUSTOM_OPP_PATH=/root/zyg/build/scattermax_runtime_opp/vendors/customize:/root/zyg/build/scattermax_runtime_opp/vendors/customize
+adapter=/root/zyg/nanwang/pyg-ascend-compat/global_max_pool/stage2/python/global_max_pool_ascend.py
+bridge=/root/zyg/build/stage2_ext/scattermaxv1_bridge.so
+app=/root/zyg/powergraph-global-max-pool-bench/scripts/profile_app.py (3 warm-up + 5 profiled calls per case)
+
+## ieee24_b128_fp32  dataset=ieee24 batch=128 dtype=fp32 path=compat_ascend  msprof_exit=0
+prof_dir=/root/zyg/powergraph-global-max-pool-bench/profiler/ieee24_b128_fp32/PROF_000001_20260920080025993_FRHRKJPEQKQNRKJA
+GATE ScatterMaxV1 -> AI_VECTOR_CORE: PASS
+  scattermaxv1_tasks=8 core_types=['AI_VECTOR_CORE'] avg=27.43us
+  AI_CPU_task_types=[] count=0
+  aten::scatter_reduce occurrences = 0 []
+  device kernel names = ['ScatterMaxV1_7d55161965c898907fdb3028d01c7c76_0']
+--- compat counters (from profile_app) ---
+{"total_calls": 8, "ascend_calls": 8, "original_calls": 0, "requires_grad_rejected": 0, "autograd_calls": 0, "dtype16_forward_calls": 0, "dtype16_autograd_calls": 0, "non_fp32_passthrough": 0, "enabled": true, "debug": false, "adapter_path": "/root/zyg/nanwang/pyg-ascend-compat/global_max_pool/stage2/python/global_max_pool_ascend.py", "autograd_path": null, "stage5_path": null}
+--- forbidden markers in msprof log ---
+--- app banner ---
+BENCH_PROFILE ieee24_b128_fp32 OK path=compat_ascend shape=(128, 3) dtype=torch.float32 device=npu:0
+BENCH_PROFILE_STATS {"total_calls": 8, "ascend_calls": 8, "original_calls": 0, "requires_grad_rejected": 0, "autograd_calls": 0, "dtype16_forward_calls": 0, "dtype16_autograd_calls": 0, "non_fp32_passthrough": 0, "enabled": true, "debug": false, "adapter_path": "/root/zyg/nanwang/pyg-ascend-compat/global_max_pool/stage2/python/global_max_pool_ascend.py", "autograd_path": null, "stage5_path": null}
+
+## ieee24_b128_fp16  dataset=ieee24 batch=128 dtype=fp16 path=compat_ascend  msprof_exit=0
+prof_dir=/root/zyg/powergraph-global-max-pool-bench/profiler/ieee24_b128_fp16/PROF_000001_20260920080047790_IIPBHPEELKKPEMLC
+GATE ScatterMaxV1 -> AI_VECTOR_CORE: PASS
+  scattermaxv1_tasks=8 core_types=['AI_VECTOR_CORE'] avg=25.62us
+  AI_CPU_task_types=[] count=0
+  aten::scatter_reduce occurrences = 0 []
+  device kernel names = ['ScatterMaxV1_7d55161965c898907fdb3028d01c7c76_0']
+--- compat counters (from profile_app) ---
+{"total_calls": 8, "ascend_calls": 8, "original_calls": 0, "requires_grad_rejected": 0, "autograd_calls": 0, "dtype16_forward_calls": 8, "dtype16_autograd_calls": 0, "non_fp32_passthrough": 0, "enabled": true, "debug": false, "adapter_path": "/root/zyg/nanwang/pyg-ascend-compat/global_max_pool/stage2/python/global_max_pool_ascend.py", "autograd_path": null, "stage5_path": "/root/zyg/nanwang/pyg-ascend-compat/global_max_pool/stage5/python/global_max_pool_ascend_dtype.py"}
+--- forbidden markers in msprof log ---
+--- app banner ---
+BENCH_PROFILE ieee24_b128_fp16 OK path=compat_ascend shape=(128, 3) dtype=torch.float16 device=npu:0
+BENCH_PROFILE_STATS {"total_calls": 8, "ascend_calls": 8, "original_calls": 0, "requires_grad_rejected": 0, "autograd_calls": 0, "dtype16_forward_calls": 8, "dtype16_autograd_calls": 0, "non_fp32_passthrough": 0, "enabled": true, "debug": false, "adapter_path": "/root/zyg/nanwang/pyg-ascend-compat/global_max_pool/stage2/python/global_max_pool_ascend.py", "autograd_path": null, "stage5_path": "/root/zyg/nanwang/pyg-ascend-compat/global_max_pool/stage5/python/global_max_pool_ascend_dtype.py"}
+
+## ieee24_b128_bf16  dataset=ieee24 batch=128 dtype=bf16 path=compat_ascend  msprof_exit=0
+prof_dir=/root/zyg/powergraph-global-max-pool-bench/profiler/ieee24_b128_bf16/PROF_000001_20260920080109126_NRJPOJCHGJLRIDMC
+GATE ScatterMaxV1 -> AI_VECTOR_CORE: PASS
+  scattermaxv1_tasks=8 core_types=['AI_VECTOR_CORE'] avg=25.46us
+  AI_CPU_task_types=[] count=0
+  aten::scatter_reduce occurrences = 0 []
+  device kernel names = ['ScatterMaxV1_7d55161965c898907fdb3028d01c7c76_0']
+--- compat counters (from profile_app) ---
+{"total_calls": 8, "ascend_calls": 8, "original_calls": 0, "requires_grad_rejected": 0, "autograd_calls": 0, "dtype16_forward_calls": 8, "dtype16_autograd_calls": 0, "non_fp32_passthrough": 0, "enabled": true, "debug": false, "adapter_path": "/root/zyg/nanwang/pyg-ascend-compat/global_max_pool/stage2/python/global_max_pool_ascend.py", "autograd_path": null, "stage5_path": "/root/zyg/nanwang/pyg-ascend-compat/global_max_pool/stage5/python/global_max_pool_ascend_dtype.py"}
+--- forbidden markers in msprof log ---
+--- app banner ---
+BENCH_PROFILE ieee24_b128_bf16 OK path=compat_ascend shape=(128, 3) dtype=torch.bfloat16 device=npu:0
+BENCH_PROFILE_STATS {"total_calls": 8, "ascend_calls": 8, "original_calls": 0, "requires_grad_rejected": 0, "autograd_calls": 0, "dtype16_forward_calls": 8, "dtype16_autograd_calls": 0, "non_fp32_passthrough": 0, "enabled": true, "debug": false, "adapter_path": "/root/zyg/nanwang/pyg-ascend-compat/global_max_pool/stage2/python/global_max_pool_ascend.py", "autograd_path": null, "stage5_path": "/root/zyg/nanwang/pyg-ascend-compat/global_max_pool/stage5/python/global_max_pool_ascend_dtype.py"}
+
+## ieee118_b128_fp32  dataset=ieee118 batch=128 dtype=fp32 path=compat_ascend  msprof_exit=0
+prof_dir=/root/zyg/powergraph-global-max-pool-bench/profiler/ieee118_b128_fp32/PROF_000001_20260920080130313_MLFNKGLRDDHAOPEC
+GATE ScatterMaxV1 -> AI_VECTOR_CORE: PASS
+  scattermaxv1_tasks=8 core_types=['AI_VECTOR_CORE'] avg=119.88us
+  AI_CPU_task_types=[] count=0
+  aten::scatter_reduce occurrences = 0 []
+  device kernel names = ['ScatterMaxV1_7d55161965c898907fdb3028d01c7c76_0']
+--- compat counters (from profile_app) ---
+{"total_calls": 8, "ascend_calls": 8, "original_calls": 0, "requires_grad_rejected": 0, "autograd_calls": 0, "dtype16_forward_calls": 0, "dtype16_autograd_calls": 0, "non_fp32_passthrough": 0, "enabled": true, "debug": false, "adapter_path": "/root/zyg/nanwang/pyg-ascend-compat/global_max_pool/stage2/python/global_max_pool_ascend.py", "autograd_path": null, "stage5_path": null}
+--- forbidden markers in msprof log ---
+--- app banner ---
+BENCH_PROFILE ieee118_b128_fp32 OK path=compat_ascend shape=(128, 3) dtype=torch.float32 device=npu:0
+BENCH_PROFILE_STATS {"total_calls": 8, "ascend_calls": 8, "original_calls": 0, "requires_grad_rejected": 0, "autograd_calls": 0, "dtype16_forward_calls": 0, "dtype16_autograd_calls": 0, "non_fp32_passthrough": 0, "enabled": true, "debug": false, "adapter_path": "/root/zyg/nanwang/pyg-ascend-compat/global_max_pool/stage2/python/global_max_pool_ascend.py", "autograd_path": null, "stage5_path": null}
+
+## uk_b128_fp32  dataset=uk batch=128 dtype=fp32 path=compat_ascend  msprof_exit=0
+prof_dir=/root/zyg/powergraph-global-max-pool-bench/profiler/uk_b128_fp32/PROF_000001_20260920080154421_GOHGFKOLELOCHILB
+GATE ScatterMaxV1 -> AI_VECTOR_CORE: PASS
+  scattermaxv1_tasks=8 core_types=['AI_VECTOR_CORE'] avg=32.82us
+  AI_CPU_task_types=[] count=0
+  aten::scatter_reduce occurrences = 0 []
+  device kernel names = ['ScatterMaxV1_7d55161965c898907fdb3028d01c7c76_0']
+--- compat counters (from profile_app) ---
+{"total_calls": 8, "ascend_calls": 8, "original_calls": 0, "requires_grad_rejected": 0, "autograd_calls": 0, "dtype16_forward_calls": 0, "dtype16_autograd_calls": 0, "non_fp32_passthrough": 0, "enabled": true, "debug": false, "adapter_path": "/root/zyg/nanwang/pyg-ascend-compat/global_max_pool/stage2/python/global_max_pool_ascend.py", "autograd_path": null, "stage5_path": null}
+--- forbidden markers in msprof log ---
+--- app banner ---
+BENCH_PROFILE uk_b128_fp32 OK path=compat_ascend shape=(128, 3) dtype=torch.float32 device=npu:0
+BENCH_PROFILE_STATS {"total_calls": 8, "ascend_calls": 8, "original_calls": 0, "requires_grad_rejected": 0, "autograd_calls": 0, "dtype16_forward_calls": 0, "dtype16_autograd_calls": 0, "non_fp32_passthrough": 0, "enabled": true, "debug": false, "adapter_path": "/root/zyg/nanwang/pyg-ascend-compat/global_max_pool/stage2/python/global_max_pool_ascend.py", "autograd_path": null, "stage5_path": null}
+
+## ieee24_b128_fp32_origpyg  dataset=ieee24 batch=128 dtype=fp32 path=original_pyg  msprof_exit=0
+prof_dir=/root/zyg/powergraph-global-max-pool-bench/profiler/ieee24_b128_fp32_origpyg/PROF_000001_20260920080218007_JEBHIORBQCGGDHMA
+GATE ScatterMaxV1 -> AI_VECTOR_CORE: N/A
+  scattermaxv1_tasks=0 core_types=[] avg=Noneus
+  AI_CPU_task_types=[] count=0
+  aten::scatter_reduce occurrences = 0 []
+  device kernel names = []
+--- compat counters (from profile_app) ---
+{"total_calls": 0, "ascend_calls": 0, "original_calls": 0, "requires_grad_rejected": 0, "autograd_calls": 0, "dtype16_forward_calls": 0, "dtype16_autograd_calls": 0, "non_fp32_passthrough": 0, "enabled": true, "debug": false, "adapter_path": "/root/zyg/nanwang/pyg-ascend-compat/global_max_pool/stage2/python/global_max_pool_ascend.py", "autograd_path": null, "stage5_path": null}
+--- forbidden markers in msprof log ---
+fall back to run on the CPU
+npu_cpu_fallback
+--- app banner ---
+BENCH_PROFILE ieee24_b128_fp32_origpyg OK path=original_pyg shape=(128, 3) dtype=torch.float32 device=npu:0
+BENCH_PROFILE_STATS {"total_calls": 0, "ascend_calls": 0, "original_calls": 0, "requires_grad_rejected": 0, "autograd_calls": 0, "dtype16_forward_calls": 0, "dtype16_autograd_calls": 0, "non_fp32_passthrough": 0, "enabled": true, "debug": false, "adapter_path": "/root/zyg/nanwang/pyg-ascend-compat/global_max_pool/stage2/python/global_max_pool_ascend.py", "autograd_path": null, "stage5_path": null}
+

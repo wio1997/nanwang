@@ -1,0 +1,464 @@
+{
+  "datasets": [
+    {
+      "dataset": "ieee24",
+      "raw_dir": "/root/zyg/powergraph-global-max-pool-bench/data/ieee24/ieee24/raw",
+      "files": {
+        "Bf.mat": {
+          "size_bytes": 19828278
+        },
+        "Ef.mat": {
+          "size_bytes": 33588293
+        },
+        "blist.mat": {
+          "size_bytes": 2520
+        },
+        "exp.mat": {
+          "size_bytes": 8328573
+        },
+        "of_bi.mat": {
+          "size_bytes": 7615948
+        },
+        "of_mc.mat": {
+          "size_bytes": 8129362
+        },
+        "of_reg.mat": {
+          "size_bytes": 16974
+        }
+      },
+      "B_f_tot": {
+        "container": "list[21500]",
+        "element_shape": [
+          24,
+          3
+        ],
+        "element_dtype": "float64",
+        "load_s": 15.61
+      },
+      "nodes_per_graph": 24,
+      "nodes_per_graph_constant": true,
+      "nodes_per_graph_stats": {
+        "min": 24,
+        "max": 24,
+        "sum": 516000
+      },
+      "E_f_post": {
+        "container": "list[21500]",
+        "element_shape": [
+          38,
+          4
+        ],
+        "element_dtype": "float64",
+        "load_s": 15.76
+      },
+      "edges_defined_per_graph": 38,
+      "tripped_branches_per_graph": {
+        "min": 1,
+        "max": 4,
+        "mean": 1.1209302325581396,
+        "num_unique": 4,
+        "value_counts": {
+          "1": 18942,
+          "2": 2517,
+          "3": 40,
+          "4": 1
+        }
+      },
+      "edge_index_edges_per_graph(used)": {
+        "min": 68,
+        "max": 74,
+        "mean": 73.75813953488372,
+        "num_unique": 4
+      },
+      "num_graphs": 21500,
+      "x_shape_per_graph": [
+        24,
+        3
+      ],
+      "x_dtype_produced_by_loader": "torch.float32",
+      "of_bi.mat": {
+        "field": "output_features",
+        "load_s": 15.62,
+        "type": "<class 'list'>",
+        "len": 21500
+      },
+      "of_mc.mat": {
+        "field": "category",
+        "load_s": 15.75,
+        "type": "<class 'list'>",
+        "len": 21500
+      },
+      "of_reg.mat": {
+        "field": "dns_MW",
+        "load_s": 0.01,
+        "shape": [
+          21500
+        ],
+        "dtype": "float64"
+      },
+      "exp.mat": {
+        "field": "explainations",
+        "load_s": 10.22,
+        "type": "<class 'list'>",
+        "len": 21500
+      },
+      "blist.mat": {
+        "field": "bList",
+        "shape": [
+          38,
+          2
+        ],
+        "dtype": "float64",
+        "min": 1.0,
+        "max": 24.0,
+        "load_s": 0.01
+      },
+      "audit_seconds": 73.61
+    },
+    {
+      "dataset": "ieee39",
+      "raw_dir": "/root/zyg/powergraph-global-max-pool-bench/data/ieee39/ieee39/raw",
+      "files": {
+        "Bf.mat": {
+          "size_bytes": 35649503
+        },
+        "Ef.mat": {
+          "size_bytes": 50659222
+        },
+        "blist.mat": {
+          "size_bytes": 2648
+        },
+        "exp.mat": {
+          "size_bytes": 10709815
+        },
+        "of_bi.mat": {
+          "size_bytes": 9665955
+        },
+        "of_mc.mat": {
+          "size_bytes": 10334317
+        },
+        "of_reg.mat": {
+          "size_bytes": 15020
+        }
+      },
+      "B_f_tot": {
+        "container": "list[28000]",
+        "element_shape": [
+          39,
+          3
+        ],
+        "element_dtype": "float64",
+        "load_s": 20.84
+      },
+      "nodes_per_graph": 39,
+      "nodes_per_graph_constant": true,
+      "nodes_per_graph_stats": {
+        "min": 39,
+        "max": 39,
+        "sum": 1092000
+      },
+      "E_f_post": {
+        "container": "list[28000]",
+        "element_shape": [
+          46,
+          4
+        ],
+        "element_dtype": "float64",
+        "load_s": 20.69
+      },
+      "edges_defined_per_graph": 46,
+      "tripped_branches_per_graph": {
+        "min": 1,
+        "max": 3,
+        "mean": 1.1823928571428572,
+        "num_unique": 3,
+        "value_counts": {
+          "1": 22987,
+          "2": 4919,
+          "3": 94
+        }
+      },
+      "edge_index_edges_per_graph(used)": {
+        "min": 86,
+        "max": 90,
+        "mean": 89.63521428571428,
+        "num_unique": 3
+      },
+      "num_graphs": 28000,
+      "x_shape_per_graph": [
+        39,
+        3
+      ],
+      "x_dtype_produced_by_loader": "torch.float32",
+      "of_bi.mat": {
+        "field": "output_features",
+        "load_s": 20.5,
+        "type": "<class 'list'>",
+        "len": 28000
+      },
+      "of_mc.mat": {
+        "field": "category",
+        "load_s": 20.33,
+        "type": "<class 'list'>",
+        "len": 28000
+      },
+      "of_reg.mat": {
+        "field": "dns_MW",
+        "load_s": 0.01,
+        "shape": [
+          28000
+        ],
+        "dtype": "float64"
+      },
+      "exp.mat": {
+        "field": "explainations",
+        "load_s": 12.02,
+        "type": "<class 'list'>",
+        "len": 28000
+      },
+      "blist.mat": {
+        "field": "bList",
+        "shape": [
+          46,
+          2
+        ],
+        "dtype": "float64",
+        "min": 1.0,
+        "max": 39.0,
+        "load_s": 0.01
+      },
+      "audit_seconds": 94.98
+    },
+    {
+      "dataset": "ieee118",
+      "raw_dir": "/root/zyg/powergraph-global-max-pool-bench/data/ieee118/ieee118/raw",
+      "files": {
+        "Bf.mat": {
+          "size_bytes": 391671610
+        },
+        "Ef.mat": {
+          "size_bytes": 773881083
+        },
+        "blist.mat": {
+          "size_bytes": 4888
+        },
+        "exp.mat": {
+          "size_bytes": 50679022
+        },
+        "of_bi.mat": {
+          "size_bytes": 45729477
+        },
+        "of_mc.mat": {
+          "size_bytes": 48658685
+        },
+        "of_reg.mat": {
+          "size_bytes": 47353
+        }
+      },
+      "B_f_tot": {
+        "container": "list[122500]",
+        "element_shape": [
+          118,
+          3
+        ],
+        "element_dtype": "float64",
+        "load_s": 92.53
+      },
+      "nodes_per_graph": 118,
+      "nodes_per_graph_constant": true,
+      "nodes_per_graph_stats": {
+        "min": 118,
+        "max": 118,
+        "sum": 14455000
+      },
+      "E_f_post": {
+        "container": "list[122500]",
+        "element_shape": [
+          186,
+          4
+        ],
+        "element_dtype": "float64",
+        "load_s": 92.88
+      },
+      "edges_defined_per_graph": 186,
+      "tripped_branches_per_graph": {
+        "min": 1,
+        "max": 5,
+        "mean": 1.2788408163265306,
+        "num_unique": 5,
+        "value_counts": {
+          "1": 90427,
+          "2": 30078,
+          "3": 1910,
+          "4": 80,
+          "5": 5
+        }
+      },
+      "edge_index_edges_per_graph(used)": {
+        "min": 362,
+        "max": 370,
+        "mean": 369.44231836734696,
+        "num_unique": 5
+      },
+      "num_graphs": 122500,
+      "x_shape_per_graph": [
+        118,
+        3
+      ],
+      "x_dtype_produced_by_loader": "torch.float32",
+      "of_bi.mat": {
+        "field": "output_features",
+        "load_s": 89.07,
+        "type": "<class 'list'>",
+        "len": 122500
+      },
+      "of_mc.mat": {
+        "field": "category",
+        "load_s": 89.14,
+        "type": "<class 'list'>",
+        "len": 122500
+      },
+      "of_reg.mat": {
+        "field": "dns_MW",
+        "load_s": 0.01,
+        "shape": [
+          122500
+        ],
+        "dtype": "float64"
+      },
+      "exp.mat": {
+        "field": "explainations",
+        "load_s": 53.28,
+        "type": "<class 'list'>",
+        "len": 122500
+      },
+      "blist.mat": {
+        "field": "bList",
+        "shape": [
+          186,
+          2
+        ],
+        "dtype": "float64",
+        "min": 1.0,
+        "max": 118.0,
+        "load_s": 0.01
+      },
+      "audit_seconds": 419.58
+    },
+    {
+      "dataset": "uk",
+      "raw_dir": "/root/zyg/powergraph-global-max-pool-bench/data/uk/uk/raw",
+      "files": {
+        "Bf.mat": {
+          "size_bytes": 67758691
+        },
+        "Ef.mat": {
+          "size_bytes": 225964705
+        },
+        "blist.mat": {
+          "size_bytes": 3496
+        },
+        "exp.mat": {
+          "size_bytes": 26225425
+        },
+        "of_bi.mat": {
+          "size_bytes": 23719272
+        },
+        "of_mc.mat": {
+          "size_bytes": 25250024
+        },
+        "of_reg.mat": {
+          "size_bytes": 15578
+        }
+      },
+      "B_f_tot": {
+        "container": "list[64000]",
+        "element_shape": [
+          29,
+          3
+        ],
+        "element_dtype": "float64",
+        "load_s": 47.13
+      },
+      "nodes_per_graph": 29,
+      "nodes_per_graph_constant": true,
+      "nodes_per_graph_stats": {
+        "min": 29,
+        "max": 29,
+        "sum": 1856000
+      },
+      "E_f_post": {
+        "container": "list[64000]",
+        "element_shape": [
+          99,
+          4
+        ],
+        "element_dtype": "float64",
+        "load_s": 47.74
+      },
+      "edges_defined_per_graph": 99,
+      "tripped_branches_per_graph": {
+        "min": 1,
+        "max": 4,
+        "mean": 1.237,
+        "num_unique": 4,
+        "value_counts": {
+          "1": 49317,
+          "2": 14214,
+          "3": 453,
+          "4": 16
+        }
+      },
+      "edge_index_edges_per_graph(used)": {
+        "min": 190,
+        "max": 196,
+        "mean": 195.526,
+        "num_unique": 4
+      },
+      "num_graphs": 64000,
+      "x_shape_per_graph": [
+        29,
+        3
+      ],
+      "x_dtype_produced_by_loader": "torch.float32",
+      "of_bi.mat": {
+        "field": "output_features",
+        "load_s": 47.01,
+        "type": "<class 'list'>",
+        "len": 64000
+      },
+      "of_mc.mat": {
+        "field": "category",
+        "load_s": 48.22,
+        "type": "<class 'list'>",
+        "len": 64000
+      },
+      "of_reg.mat": {
+        "field": "dns_MW",
+        "load_s": 0.01,
+        "shape": [
+          64000
+        ],
+        "dtype": "float64"
+      },
+      "exp.mat": {
+        "field": "explainations",
+        "load_s": 30.14,
+        "type": "<class 'list'>",
+        "len": 64000
+      },
+      "blist.mat": {
+        "field": "bList",
+        "shape": [
+          99,
+          2
+        ],
+        "dtype": "float64",
+        "min": 1.0,
+        "max": 29.0,
+        "load_s": 0.01
+      },
+      "audit_seconds": 221.61
+    }
+  ]
+}

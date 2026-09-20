@@ -1,0 +1,64 @@
+{
+  "dataset": "ieee24",
+  "batch": 128,
+  "graphs": 128,
+  "nodes": 3072,
+  "F": 3,
+  "warmup": 30,
+  "iters": 200,
+  "measurements": [
+    {
+      "tag": "A_sync_empty_queue",
+      "host_mean_us": 33.07,
+      "mean_us": 33.07,
+      "p50_us": 32.73,
+      "p95_us": 35.76,
+      "p99_us": 51.88
+    },
+    {
+      "tag": "B_trivial_op_sync_per_iter",
+      "host_mean_us": 101.62,
+      "mean_us": 101.62,
+      "p50_us": 96.76,
+      "p95_us": 123.16,
+      "p99_us": 153.79
+    },
+    {
+      "tag": "C_compat_global_max_pool",
+      "host_mean_us": 925.35,
+      "mean_us": 869.95,
+      "p50_us": 865.32,
+      "p95_us": 908.56,
+      "p99_us": 947.21
+    },
+    {
+      "tag": "C2_compat_sync_per_iter",
+      "host_mean_us": 795.56,
+      "mean_us": 795.56,
+      "p50_us": 785.95,
+      "p95_us": 846.0,
+      "p99_us": 885.9
+    },
+    {
+      "tag": "D_raw_bridge_kernel_only",
+      "host_mean_us": 157.3,
+      "mean_us": 111.79,
+      "p50_us": 110.01,
+      "p95_us": 133.81,
+      "p99_us": 174.03
+    },
+    {
+      "tag": "E_original_pyg_fallback",
+      "host_mean_us": 904.38,
+      "mean_us": 853.28,
+      "p50_us": 849.57,
+      "p95_us": 905.13,
+      "p99_us": 934.18
+    }
+  ],
+  "adapter_notes": {
+    "F_kernel_after_padding": 8,
+    "padded": true,
+    "host_sync_per_call": "adapter validates batch range via torch.stack((batch.min(), batch.max())).cpu().tolist()"
+  }
+}

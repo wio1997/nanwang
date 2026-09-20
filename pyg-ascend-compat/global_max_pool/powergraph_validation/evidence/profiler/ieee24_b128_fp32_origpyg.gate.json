@@ -1,0 +1,39 @@
+{
+  "tag": "ieee24_b128_fp32_origpyg",
+  "path": "original_pyg",
+  "prof_dir": "/root/zyg/powergraph-global-max-pool-bench/profiler/ieee24_b128_fp32_origpyg/PROF_000001_20260920080218007_JEBHIORBQCGGDHMA",
+  "op_types": {
+    "BroadcastTo": {
+      "count": 8,
+      "task_types": [
+        "AI_VECTOR_CORE"
+      ],
+      "dur_avg_us": 12.5
+    },
+    "ReduceMax": {
+      "count": 9,
+      "task_types": [
+        "MIX_AIV"
+      ],
+      "dur_avg_us": 53.68
+    },
+    "ZerosLike": {
+      "count": 8,
+      "task_types": [
+        "AI_VECTOR_CORE"
+      ],
+      "dur_avg_us": 12.61
+    }
+  },
+  "scattermaxv1_tasks": 0,
+  "scattermaxv1_core_types": [],
+  "scattermaxv1_dur_avg_us": null,
+  "scattermaxv1_dur_min_us": null,
+  "scattermaxv1_dur_max_us": null,
+  "ai_cpu_task_types": [],
+  "ai_cpu_task_count": 0,
+  "scatter_reduce_api_occurrences": 0,
+  "scatter_reduce_api_names": [],
+  "device_kernel_names": [],
+  "gate_scattermaxv1_on_ai_vector_core": false
+}

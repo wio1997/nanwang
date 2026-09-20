@@ -1,0 +1,103 @@
+{
+  "datasets": [
+    {
+      "num_graphs": 28000,
+      "feature_dim": 3,
+      "x_dtype": "torch.float32",
+      "total_nodes_all_graphs": 1092000,
+      "total_directed_edges_all_graphs": 2509786,
+      "nodes_per_graph_min": 39,
+      "nodes_per_graph_max": 39,
+      "nodes_per_graph_mean": 39.0,
+      "nodes_per_graph_num_unique": 1,
+      "nodes_per_graph_constant": true,
+      "edges_per_graph_min": 86,
+      "edges_per_graph_max": 90,
+      "edges_per_graph_mean": 89.63521428571428,
+      "edges_per_graph_num_unique": 3,
+      "edges_per_graph_constant": false,
+      "dataset": "ieee39",
+      "build_seconds": 181.49,
+      "processed_path": "/root/zyg/powergraph-global-max-pool-bench/data/ieee39/ieee39/processed_b/data.pt",
+      "processed_bytes": 105140553,
+      "num_classes_binary": 2,
+      "first_batch_smoke": {
+        "batch_size": 4,
+        "batch_x_shape": [
+          156,
+          3
+        ],
+        "batch_x_dtype": "torch.float32",
+        "batch_index_dtype": "torch.int64",
+        "num_graphs_in_batch": 4,
+        "num_features": 3
+      }
+    },
+    {
+      "num_graphs": 122500,
+      "feature_dim": 3,
+      "x_dtype": "torch.float32",
+      "total_nodes_all_graphs": 14455000,
+      "total_directed_edges_all_graphs": 45256684,
+      "nodes_per_graph_min": 118,
+      "nodes_per_graph_max": 118,
+      "nodes_per_graph_mean": 118.0,
+      "nodes_per_graph_num_unique": 1,
+      "nodes_per_graph_constant": true,
+      "edges_per_graph_min": 362,
+      "edges_per_graph_max": 370,
+      "edges_per_graph_mean": 369.44231836734696,
+      "edges_per_graph_num_unique": 5,
+      "edges_per_graph_constant": false,
+      "dataset": "ieee118",
+      "build_seconds": 1594.02,
+      "processed_path": "/root/zyg/powergraph-global-max-pool-bench/data/ieee118/ieee118/processed_b/data.pt",
+      "processed_bytes": 1810054793,
+      "num_classes_binary": 2,
+      "first_batch_smoke": {
+        "batch_size": 4,
+        "batch_x_shape": [
+          472,
+          3
+        ],
+        "batch_x_dtype": "torch.float32",
+        "batch_index_dtype": "torch.int64",
+        "num_graphs_in_batch": 4,
+        "num_features": 3
+      }
+    },
+    {
+      "num_graphs": 64000,
+      "feature_dim": 3,
+      "x_dtype": "torch.float32",
+      "total_nodes_all_graphs": 1856000,
+      "total_directed_edges_all_graphs": 12513664,
+      "nodes_per_graph_min": 29,
+      "nodes_per_graph_max": 29,
+      "nodes_per_graph_mean": 29.0,
+      "nodes_per_graph_num_unique": 1,
+      "nodes_per_graph_constant": true,
+      "edges_per_graph_min": 190,
+      "edges_per_graph_max": 196,
+      "edges_per_graph_mean": 195.526,
+      "edges_per_graph_num_unique": 4,
+      "edges_per_graph_constant": false,
+      "dataset": "uk",
+      "build_seconds": 578.73,
+      "processed_path": "/root/zyg/powergraph-global-max-pool-bench/data/uk/uk/processed_b/data.pt",
+      "processed_bytes": 476608073,
+      "num_classes_binary": 2,
+      "first_batch_smoke": {
+        "batch_size": 4,
+        "batch_x_shape": [
+          116,
+          3
+        ],
+        "batch_x_dtype": "torch.float32",
+        "batch_index_dtype": "torch.int64",
+        "num_graphs_in_batch": 4,
+        "num_features": 3
+      }
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+aiohappyeyeballs==2.7.1
+aiohttp==3.14.3
+aiosignal==1.4.0
+asc_op_compile_base @ file:///root/selfgz657130614/lib/asc_op_compile_base-0.1.0-py3-none-any.whl#sha256=5ff7f961603b22368e0e70e78121588c31028a3ac287a481432650c939a44f51
+asc_opc_tool @ file:///root/selfgz657130614/lib/asc_opc_tool-0.1.0-py3-none-any.whl#sha256=181dd61022e78b91d1e9c5911ab74b954fb1873a5fd6d33c73b3ae655365d315
+attrs==26.1.0
+auto_tune @ file:///root/selfgz2361821976/share/info/tbe-tik/python/auto_tune-0.1.0-py3-none-any.whl#sha256=9d80b66b2182c44abba05dcf039f05afb4f1789d03f97145b949c3b7ed627e1c
+certifi==2026.7.22
+charset-normalizer==3.5.1
+dataflow @ file:///root/selfgz157724435/ge-compiler/lib64/dataflow-0.0.1-py3-none-any.whl#sha256=fce6b871ed951999ff7b3af27d54cd404bfe3c4db0aea483c09657f2fd277693
+es_math @ file:///root/selfgz4172419860/ops_math/es_packages/whl/es_math-1.0.0-py3-none-any.whl#sha256=c6f183e5e577e135600a7ce25dedaaf97a1b051174ec2fc0ae069cfe0992ad74
+filelock==3.32.7
+frozenlist==1.8.0
+fsspec==2026.7.0
+ge-py @ file:///root/selfgz157724435/ge-compiler/lib64/ge_py-0.0.1-py3-none-any.whl#sha256=cb6bae963883792152ed3be64dd50462770a7b8df4137e933f2b47932043799c
+h5py==3.16.0
+hccl @ file:///root/selfgz412601360/hcomm/lib64/hccl-0.1.0-py3-none-any.whl#sha256=6480341e5ecc8f619f6aca5c4774a8ec694663869f4d5519209476d541e974f1
+idna==3.19
+Jinja2==3.1.6
+llm_datadist @ file:///root/selfgz341921545/hixl/lib/llm_datadist-0.0.1-py3-none-any.whl#sha256=139528a3368756a8584530d49f696c7055369da436f052095c6d6fdedc7eb7fc
+llm_datadist_v1 @ file:///root/selfgz157724435/ge-compiler/lib64/llm_datadist_v1-0.0.1-py3-none-any.whl#sha256=3d53972883e68492fff698d1e414220bf7745245c25436030947932b642e1e11
+MarkupSafe==3.0.3
+mat73==0.65
+mpmath==1.3.0
+msobjdump @ file:///usr/local/Ascend/cann/tools/msobjdump-0.1.0-py3-none-any.whl#sha256=923e0f2a81ba1b3e136f82ae7ef63317068dd9318485440356beeb7ce8e5a1ff
+mspti @ file:///usr/local/Ascend/cann-8.5.1/tools/mspti/python/mspti-0.0.1-py3-none-any.whl#sha256=f1888ddea0f66a9f1a1ad0703bea85c7581a5b4a3499d6ce8af9727246d0eeab
+multidict==6.8.0
+networkx==3.6.1
+numpy==2.4.6
+op_compile_tool @ file:///root/selfgz2361821976/share/info/tbe-tik/python/op_compile_tool-0.1.0-py3-none-any.whl#sha256=171dd4b52e160fd02a7e068f512ac02600e3e583f5921913a571ab24ed75b103
+op_gen @ file:///usr/local/Ascend/cann/tools/op_gen-0.1-py3-none-any.whl#sha256=8d54975238e9dfc87b1b1ee60f3fa1b2b8b666a548816a0f93c9666090d471ff
+op_test_frame @ file:///usr/local/Ascend/cann/tools/op_test_frame-0.1-py3-none-any.whl#sha256=8047dd327b921b9ed7f75ff4a4dbd0e6549c0b9776e5ca93bcf46b46b8310ee4
+opc_tool @ file:///root/selfgz2361821976/share/info/tbe-tik/python/opc_tool-0.1.0-py3-none-any.whl#sha256=9338a06986f38704b0fa53dcfd615a3296c2cec4a9ae6fb56137de6f330d905d
+packaging==26.3
+propcache==0.5.2
+psutil==7.2.2
+pyparsing==3.3.2
+PyYAML==6.0.3
+requests==2.34.2
+schedule_search @ file:///root/selfgz2361821976/share/info/tbe-tik/python/schedule_search-0.1.0-py3-none-any.whl#sha256=a6d657cc64ce2f4db12b85f67d8fec4862e54bc1d02e1b0fb04166e073503a50
+show_kernel_debug_data @ file:///usr/local/Ascend/cann/tools/show_kernel_debug_data-0.1.0-py3-none-any.whl#sha256=ac1e6276553d7aad3488273fadc688dd8daddf9d8cbcd354ccb0c8c5a07ae664
+superkernel @ file:///root/selfgz2108623682/graph_autofusion/lib/superkernel-0.1.0-py3-none-any.whl#sha256=0b7ff3d70c3f3a9c763a0d11df4cc691986c7dad436b0c2840f8d030d366ea36
+sympy==1.14.0
+te @ file:///root/selfgz2361821976/share/info/tbe-tik/python/te-0.4.0-py3-none-any.whl#sha256=ec693c886e584a3535ece47f77c5cdd49a62de000a89a799b7375025cd73b4de
+torch==2.9.0
+torch-geometric==2.8.0.post1
+torch_npu==2.9.0
+tqdm==4.70.1
+typing_extensions==4.16.0
+urllib3==2.7.0
+xxhash==4.0.1
+yarl==1.24.5

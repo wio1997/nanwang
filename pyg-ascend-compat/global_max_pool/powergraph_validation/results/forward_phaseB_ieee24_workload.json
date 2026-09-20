@@ -1,0 +1,19 @@
+{
+  "ieee24": {
+    "num_graphs": 21500,
+    "feature_dim": 3,
+    "x_dtype": "torch.float32",
+    "total_nodes_all_graphs": 516000,
+    "total_directed_edges_all_graphs": 1585800,
+    "nodes_per_graph_min": 24,
+    "nodes_per_graph_max": 24,
+    "nodes_per_graph_mean": 24.0,
+    "nodes_per_graph_num_unique": 1,
+    "nodes_per_graph_constant": true,
+    "edges_per_graph_min": 68,
+    "edges_per_graph_max": 74,
+    "edges_per_graph_mean": 73.75813953488372,
+    "edges_per_graph_num_unique": 4,
+    "edges_per_graph_constant": false
+  }
+}

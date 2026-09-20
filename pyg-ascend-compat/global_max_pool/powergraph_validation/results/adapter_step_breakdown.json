@@ -1,0 +1,65 @@
+{
+  "dataset": "ieee24",
+  "batch": 128,
+  "graphs": 128,
+  "nodes": 3072,
+  "F": 3,
+  "F_kernel": 8,
+  "padded": true,
+  "warmup": 30,
+  "iters": 200,
+  "methods": "torch.npu.synchronize() immediately before and after each timed call",
+  "steps": {
+    "00_full_op_compat_call": {
+      "mean_us": 800.09,
+      "p50_us": 801.93,
+      "p95_us": 842.16
+    },
+    "01_batch_minmax_to_host": {
+      "mean_us": 237.95,
+      "p50_us": 236.83,
+      "p95_us": 251.64
+    },
+    "02_index_to_int32": {
+      "mean_us": 76.86,
+      "p50_us": 73.71,
+      "p95_us": 92.68
+    },
+    "03_pad_input_features": {
+      "mean_us": 92.67,
+      "p50_us": 90.0,
+      "p95_us": 109.67
+    },
+    "04_torch_full_inf": {
+      "mean_us": 91.56,
+      "p50_us": 89.05,
+      "p95_us": 108.58
+    },
+    "05_torch_empty_argmax": {
+      "mean_us": 53.22,
+      "p50_us": 52.95,
+      "p95_us": 57.16
+    },
+    "06_scattermaxv1_kernel_only": {
+      "mean_us": 74.99,
+      "p50_us": 72.78,
+      "p95_us": 85.09
+    },
+    "07_occupancy_zeros_plus_scatter": {
+      "mean_us": 287.11,
+      "p50_us": 284.54,
+      "p95_us": 305.22
+    },
+    "08_masked_fill_empty_groups": {
+      "mean_us": 116.91,
+      "p50_us": 116.04,
+      "p95_us": 127.05
+    },
+    "09_crop_contiguous": {
+      "mean_us": 103.98,
+      "p50_us": 103.18,
+      "p95_us": 109.87
+    }
+  },
+  "sum_of_device_steps_us": 1135.25
+}

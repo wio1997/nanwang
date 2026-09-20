@@ -1,0 +1,127 @@
+{
+  "tag": "ieee118_b128_fp32",
+  "path": "compat_ascend",
+  "prof_dir": "/root/zyg/powergraph-global-max-pool-bench/profiler/ieee118_b128_fp32/PROF_000001_20260920080130313_MLFNKGLRDDHAOPEC",
+  "op_types": {
+    "BroadcastTo": {
+      "count": 8,
+      "task_types": [
+        "AI_VECTOR_CORE"
+      ],
+      "dur_avg_us": 3.26
+    },
+    "Cast": {
+      "count": 8,
+      "task_types": [
+        "AI_VECTOR_CORE"
+      ],
+      "dur_avg_us": 10.33
+    },
+    "Equal": {
+      "count": 8,
+      "task_types": [
+        "AI_VECTOR_CORE"
+      ],
+      "dur_avg_us": 13.76
+    },
+    "Fill": {
+      "count": 8,
+      "task_types": [
+        "AI_VECTOR_CORE"
+      ],
+      "dur_avg_us": 4.8
+    },
+    "LinearIndex": {
+      "count": 8,
+      "task_types": [
+        "AI_VECTOR_CORE"
+      ],
+      "dur_avg_us": 27.97
+    },
+    "MaskedFill": {
+      "count": 8,
+      "task_types": [
+        "AI_VECTOR_CORE"
+      ],
+      "dur_avg_us": 15.6
+    },
+    "MemSet": {
+      "count": 8,
+      "task_types": [
+        "AI_VECTOR_CORE"
+      ],
+      "dur_avg_us": 10.6
+    },
+    "Pack": {
+      "count": 8,
+      "task_types": [
+        "AI_VECTOR_CORE"
+      ],
+      "dur_avg_us": 23.26
+    },
+    "PadV3": {
+      "count": 8,
+      "task_types": [
+        "MIX_AIV"
+      ],
+      "dur_avg_us": 16.48
+    },
+    "ReduceMax": {
+      "count": 9,
+      "task_types": [
+        "MIX_AIV"
+      ],
+      "dur_avg_us": 140.24
+    },
+    "ReduceMin": {
+      "count": 8,
+      "task_types": [
+        "MIX_AIV"
+      ],
+      "dur_avg_us": 122.15
+    },
+    "ScatterElementsV2": {
+      "count": 8,
+      "task_types": [
+        "AI_VECTOR_CORE"
+      ],
+      "dur_avg_us": 222.56
+    },
+    "ScatterMaxV1": {
+      "count": 8,
+      "task_types": [
+        "AI_VECTOR_CORE"
+      ],
+      "dur_avg_us": 119.88
+    },
+    "Slice": {
+      "count": 8,
+      "task_types": [
+        "AI_VECTOR_CORE"
+      ],
+      "dur_avg_us": 7.52
+    },
+    "ZerosLike": {
+      "count": 8,
+      "task_types": [
+        "AI_VECTOR_CORE"
+      ],
+      "dur_avg_us": 2.23
+    }
+  },
+  "scattermaxv1_tasks": 8,
+  "scattermaxv1_core_types": [
+    "AI_VECTOR_CORE"
+  ],
+  "scattermaxv1_dur_avg_us": 119.88,
+  "scattermaxv1_dur_min_us": 94.442,
+  "scattermaxv1_dur_max_us": 164.024,
+  "ai_cpu_task_types": [],
+  "ai_cpu_task_count": 0,
+  "scatter_reduce_api_occurrences": 0,
+  "scatter_reduce_api_names": [],
+  "device_kernel_names": [
+    "ScatterMaxV1_7d55161965c898907fdb3028d01c7c76_0"
+  ],
+  "gate_scattermaxv1_on_ai_vector_core": true
+}

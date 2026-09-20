@@ -1,0 +1,17 @@
+# PowerGraph data is never committed (see DATASET.md)
+data/
+data_download/
+upstream/
+
+# Raw msprof output from a fresh run goes to profiler_runs/
+profiler_runs/
+
+# Any stray downloaded archive
+*.zip
+*.7z
+*.tar
+*.tar.gz
+
+# Local scratch
+__pycache__/
+*.py[cod]

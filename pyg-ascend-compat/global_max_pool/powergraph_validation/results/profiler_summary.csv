@@ -1,0 +1,7 @@
+case,path,scattermaxv1_tasks,scattermaxv1_core_types,scattermaxv1_dur_avg_us,ai_cpu_task_count,ai_cpu_task_types,scatter_reduce_api_occurrences,device_kernel_names,gate_pass,compat_total_calls,compat_ascend_calls,compat_original_calls,compat_dtype16_forward_calls,compat_non_fp32_passthrough
+ieee118_b128_fp32,compat_ascend,8,AI_VECTOR_CORE,119.88,0,,0,ScatterMaxV1_7d55161965c898907fdb3028d01c7c76_0,True,8,8,0,0,0
+ieee24_b128_bf16,compat_ascend,8,AI_VECTOR_CORE,25.46,0,,0,ScatterMaxV1_7d55161965c898907fdb3028d01c7c76_0,True,8,8,0,8,0
+ieee24_b128_fp16,compat_ascend,8,AI_VECTOR_CORE,25.62,0,,0,ScatterMaxV1_7d55161965c898907fdb3028d01c7c76_0,True,8,8,0,8,0
+ieee24_b128_fp32,compat_ascend,8,AI_VECTOR_CORE,27.43,0,,0,ScatterMaxV1_7d55161965c898907fdb3028d01c7c76_0,True,8,8,0,0,0
+ieee24_b128_fp32_origpyg,original_pyg,0,,,0,,0,,False,0,0,0,0,0
+uk_b128_fp32,compat_ascend,8,AI_VECTOR_CORE,32.82,0,,0,ScatterMaxV1_7d55161965c898907fdb3028d01c7c76_0,True,8,8,0,0,0

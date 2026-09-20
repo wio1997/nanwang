@@ -1,0 +1,33 @@
+{
+  "tag": "ieee24_b128_bf16",
+  "dataset": "ieee24",
+  "batch": 128,
+  "batch_effective": 128,
+  "dtype": "bf16",
+  "path": "compat_ascend",
+  "graphs": 128,
+  "nodes": 3072,
+  "F": 3,
+  "reps": 5,
+  "warmup": 3,
+  "out_shape": [
+    128,
+    3
+  ],
+  "out_dtype": "torch.bfloat16",
+  "compat_stats": {
+    "total_calls": 8,
+    "ascend_calls": 8,
+    "original_calls": 0,
+    "requires_grad_rejected": 0,
+    "autograd_calls": 0,
+    "dtype16_forward_calls": 8,
+    "dtype16_autograd_calls": 0,
+    "non_fp32_passthrough": 0,
+    "enabled": true,
+    "debug": false,
+    "adapter_path": "/root/zyg/nanwang/pyg-ascend-compat/global_max_pool/stage2/python/global_max_pool_ascend.py",
+    "autograd_path": null,
+    "stage5_path": "/root/zyg/nanwang/pyg-ascend-compat/global_max_pool/stage5/python/global_max_pool_ascend_dtype.py"
+  }
+}

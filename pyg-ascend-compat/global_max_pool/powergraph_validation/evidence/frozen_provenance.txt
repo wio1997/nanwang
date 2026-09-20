@@ -1,0 +1,31 @@
+repo=https://github.com/wio1997/nanwang
+branch=feat/global-max-pool-scattermax-zyg
+head=d1dc616b809c32819f3f1fab9a8c43528f824f05
+frozen_operator_sha=c15423e7b303d2b1597621c64585252472301537
+final_docs_head=d1dc616b809c32819f3f1fab9a8c43528f824f05
+git_status_porcelain_lines=0
+diff_frozen_to_head_files:
+pyg-ascend-compat/global_max_pool/README_DELIVERY.md
+
+--- sha256 frozen sources ---
+417871482f1c7aa4fcf1f4cab16c3581958de5162d1499a1cc4db1220efbcd13  pyg-ascend-compat/global_max_pool/stage6/pyg_ascend_compat/__init__.py
+60e037f3104dc8674c9f1a1a98d646f31d037f09764465e57036bdf9a1df0119  pyg-ascend-compat/global_max_pool/stage2/python/global_max_pool_ascend.py
+6647ee038a30529a71f05745427300c0258eded0182d172ad8c5105dd4d7666c  pyg-ascend-compat/global_max_pool/stage4/python/global_max_pool_ascend_autograd.py
+cac35c11c2e31ca9872ad70389dc1d85948b53cb1f0f51b7978684624299cf92  pyg-ascend-compat/global_max_pool/stage5/python/global_max_pool_ascend_dtype.py
+773198c3b1c77e7d755b0ac3f4cb91f794aed6718de839c230d5e2cdb488a016  pyg-ascend-compat/global_max_pool/stage3e/delivery_source/op_kernel/scatter_max_v1.cpp
+ab7fd9d2d18796e35a66df07dcaac82e625e07eed76341e217487acf4e83f654  pyg-ascend-compat/global_max_pool/stage3e/delivery_source/op_host/scatter_max_v1.cpp
+
+--- sha256 installed OPP ---
+47f31ff0fb949485e7b7dedc25e09963ae5442515a9d30b31f5010729b5a27bc  /root/zyg/build/scattermax_runtime_opp/vendors/customize/framework/plugin/npu_supported_ops.json
+318a4b2c8904679d30bb268ef64fe0fa7f8f74b59f526cb94e7196c34bb4e012  /root/zyg/build/scattermax_runtime_opp/vendors/customize/op_api/lib/libcust_opapi.so
+c513014df6503cacd7ca56970eb9c6201fac2a8111d09bb3f5320f93b2d08294  /root/zyg/build/scattermax_runtime_opp/vendors/customize/op_impl/ai_core/tbe/config/ascend910b/aic-ascend910b-ops-info.json
+4fd053d121722475e7db47cf6173e43ae24804623b93b8cf0aa1fbf25f5cd070  /root/zyg/build/scattermax_runtime_opp/vendors/customize/op_impl/ai_core/tbe/kernel/ascend910b/scatter_max_argmax_v1/ScatterMaxArgmaxV1_798fddcf56f6774ec7fa251da5d51746.json
+755a59daeba86e1388c860d633f3dfc94468975832bf05abc5695bb4802130a8  /root/zyg/build/scattermax_runtime_opp/vendors/customize/op_impl/ai_core/tbe/kernel/ascend910b/scatter_max_v1/ScatterMaxV1_7d55161965c898907fdb3028d01c7c76.json
+489cc936a8fe5820f7547f3dac99c4c7503421519302806865b46fa564c67e6e  /root/zyg/build/scattermax_runtime_opp/vendors/customize/op_impl/ai_core/tbe/kernel/config/ascend910b/binary_info_config.json
+b0685e8ec523103ea1820c01f35e371eae637b951daf3f6f437ee6f20c86cfa9  /root/zyg/build/scattermax_runtime_opp/vendors/customize/op_impl/ai_core/tbe/kernel/config/ascend910b/scatter_max_argmax_v1.json
+cc5a4d60f04142a01abadaf73648b2de040c59985bf7d502d41e41fd185c35e4  /root/zyg/build/scattermax_runtime_opp/vendors/customize/op_impl/ai_core/tbe/kernel/config/ascend910b/scatter_max_v1.json
+efad8b7293e7e1ae701474eb0984733a2624eeaed4ceee97fc4bc615c8c5e9d1  /root/zyg/build/scattermax_runtime_opp/vendors/customize/op_impl/ai_core/tbe/op_tiling/lib/linux/aarch64/libcust_opmaster_rt2.0.so
+850fcbdb266e9ea139d9e8b784879ca2f04c03ee8e6f05351eae3f0c5cd53776  /root/zyg/build/scattermax_runtime_opp/vendors/customize/op_proto/lib/linux/aarch64/libcust_opsproto_rt2.0.so
+
+--- sha256 bridge ---
+f83769d63eb111cf8c7b331f2aae3e80e0dd1279a4583bfbf9cb2c51eaf5c519  /root/zyg/build/stage2_ext/scattermaxv1_bridge.so

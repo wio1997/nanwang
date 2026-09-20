@@ -1,0 +1,4 @@
+Device_id,OP Type,Core Type,Count,Total Time(us),Min Time(us),Avg Time(us),Max Time(us),Ratio(%)
+0,ReduceMax,MIX_AIV,9,483.13,34.201,53.681,104.002,70.628
+0,ZerosLike,AI_VECTOR_CORE,8,100.882,1.32,12.61,54.021,14.748
+0,BroadcastTo,AI_VECTOR_CORE,8,100.042,11.14,12.505,15.1,14.625
