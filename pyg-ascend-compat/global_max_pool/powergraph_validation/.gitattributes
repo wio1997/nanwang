@@ -1,0 +1,10 @@
+# Machine-generated measurement evidence.
+#
+# These files are committed exactly as produced by the measurement tooling:
+# the result CSVs use the python csv module's default CRLF line terminator, and
+# the msprof exports end lines with a trailing tab. They are data, not source,
+# so git's whitespace checking and any text/EOL normalisation are disabled for
+# them. No value is ever rewritten by git.
+results/*.csv                 -text -whitespace
+results/profiler_summary.txt  -whitespace
+evidence/profiler/**          -text -whitespace
