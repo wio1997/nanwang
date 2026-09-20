@@ -63,7 +63,7 @@ PyG Ascend `global_max_pool` 实现，在
 2. POWERGRAPH_GLOBAL_MAX_POOL_VALIDATION.md   完整验证报告（方法与证据）
 3. DATASET.md                                  数据集来源与获取方式
 4. scripts/                                    测试脚本与一键验证
-5. results/ 与 evidence/                        原始数据与 Profiler 证据
+5. results/ 与 evidence/                        原始测试结果与 Profiler 证据
 ```
 
 ## 2. 测试了哪些数据集
