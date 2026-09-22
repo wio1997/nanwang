@@ -2,6 +2,30 @@
 
 Ascend compatibility validation artifacts.
 
+## 当前主要交付
+
+**Ascend PyG `global_max_pool`**
+
+- 状态：已完成并冻结
+- 平台：Ascend 910B3
+- CANN：8.5.1
+- PyTorch / torch_npu：2.9.0
+- PyG：2.8.0.post1
+
+正式交付页面：
+
+→ [`pyg-ascend-compat/global_max_pool/README.md`](./pyg-ascend-compat/global_max_pool/README.md)
+
+该页面汇总算子实现、真实 PowerGraph 输入输出、性能报告和复现方法。
+
+```text
+Repository
+   ↓
+当前主要交付：Ascend PyG global_max_pool
+   ↓
+pyg-ascend-compat/global_max_pool/README.md
+```
+
 ## PyTorch Geometric on Ascend 910B3
 
 The [`pyg-ascend-compat`](./pyg-ascend-compat/) directory contains the first-round compatibility screening for:
