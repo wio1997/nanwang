@@ -1,0 +1,47 @@
+[W922 04:10:50.469465149 compiler_depend.ts:164] Warning: Device do not support double dtype now, dtype cast replace with float. (function operator())
+/root/zyg/powergraph-global-max-pool-bench/data/ieee24/ieee24/processed_b/data.pt
+========== POWERGRAPH DATASET ==========
+dataset      : ieee24
+dataset size : 21500
+batch graphs : 2
+x.shape      : (48, 3)
+batch.shape  : (48,)
+x.dtype      : torch.float32
+nodes/graph  : tensor([24, 24])
+
+========== REAL INPUT ==========
+x 前 10 个节点:
+tensor([[-0.0315, -0.1009, -0.2132],
+        [-0.0170,  0.0018, -0.2245],
+        [-0.2399, -0.0083, -0.1479],
+        [-0.1005, -0.2604, -0.3756],
+        [-0.0966, -0.2673, -0.0672],
+        [-0.1820, -0.1139,  0.1419],
+        [-0.0309, -0.2285, -0.5248],
+        [-0.2280, -0.0300, -0.5927],
+        [-0.2333, -0.0204, -0.0961],
+        [-0.2596,  0.0277,  0.4073]])
+batch 前 30 个元素:
+tensor([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        1, 1, 1, 1, 1, 1])
+
+========== NPU INPUT ==========
+x.device     : npu:0
+batch.device : npu:0
+exec dtype   : fp32 (torch.float32)
+
+========== NPU OUTPUT ==========
+tensor([[0.7404, 0.6543, 0.4073],
+        [0.7404, 0.6543, 0.4073]], device='npu:0')
+out.shape  : (2, 3)
+out.device : npu:0
+out.dtype  : torch.float32
+
+========== CPU EXPECTED ==========
+tensor([[0.7404, 0.6543, 0.4073],
+        [0.7404, 0.6543, 0.4073]])
+
+========== CHECK ==========
+exact equal : True
+allclose    : True
+tolerance   : rtol=1e-05, atol=1e-06
