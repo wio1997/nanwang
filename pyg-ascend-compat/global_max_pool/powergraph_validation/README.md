@@ -282,7 +282,8 @@ measure : 200 (per-iteration)
   - `ieee24_b128_fp32`：**27.43 us**；`ieee24_b128_fp16`：25.62 us；`ieee24_b128_bf16`：25.46 us
   - `uk_b128_fp32`：**32.82 us**
   - `ieee118_b128_fp32`：**119.88 us**
-- 而完整 `global_max_pool` **API** 调用约 **840–1,170 us**（96 个 forward case，见性能证据报告）。
+- 而完整 Ascend compat `global_max_pool` **API** 调用，在本轮 **48 个 `compat_ascend` forward case** 中
+  约为 **840–1,170 us**（见性能证据报告）。
   主要开销来自：
   - adapter 固定开销
   - device → host synchronization
